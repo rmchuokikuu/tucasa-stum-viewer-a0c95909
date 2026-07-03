@@ -611,3 +611,118 @@
     box-shadow: 0 1px 0 hsl(var(--border) / 0.6);
   }
 }
+
+/* ───── Dashboard glass surface (Welcome-page look on all dashboard pages) ───── */
+.dashboard-surface {
+  color: #ffffff;
+}
+.dashboard-surface h1,
+.dashboard-surface h2,
+.dashboard-surface h3,
+.dashboard-surface h4,
+.dashboard-surface h5,
+.dashboard-surface h6 {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+.dashboard-surface p,
+.dashboard-surface span,
+.dashboard-surface label,
+.dashboard-surface li,
+.dashboard-surface dt,
+.dashboard-surface dd {
+  color: rgba(255,255,255,0.9);
+}
+.dashboard-surface .text-muted-foreground,
+.dashboard-surface [class*="text-muted"] {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Cards → glassmorphism */
+.dashboard-surface [class*="rounded-lg"].border.bg-card,
+.dashboard-surface .bg-card,
+.dashboard-surface [data-slot="card"] {
+  background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.30);
+  box-shadow: 0 32px 90px -30px rgba(2,8,23,0.75);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-radius: 24px;
+  color: #ffffff;
+}
+
+/* Tables */
+.dashboard-surface table { color: #ffffff; }
+.dashboard-surface thead tr,
+.dashboard-surface th {
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.2) !important;
+}
+.dashboard-surface tbody tr {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.dashboard-surface tbody tr:hover {
+  background: rgba(255,255,255,0.08) !important;
+}
+
+/* Tabs */
+.dashboard-surface [role="tablist"] {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dashboard-surface [role="tab"] { color: rgba(255,255,255,0.75); }
+.dashboard-surface [role="tab"][data-state="active"] {
+  background: rgba(255,255,255,0.22);
+  color: #ffffff;
+  box-shadow: 0 4px 20px -6px rgba(2,8,23,0.5);
+}
+
+/* Inputs, textareas, selects */
+.dashboard-surface input,
+.dashboard-surface textarea,
+.dashboard-surface select,
+.dashboard-surface [role="combobox"] {
+  background: rgba(255,255,255,0.92);
+  color: #0f172a;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 14px;
+}
+.dashboard-surface input::placeholder,
+.dashboard-surface textarea::placeholder {
+  color: rgba(15,23,42,0.55);
+}
+
+/* Buttons: keep primary readable, style outlines/ghost as glass */
+.dashboard-surface button[class*="border"]:not([class*="bg-primary"]):not([class*="bg-destructive"]) {
+  border-color: rgba(255,255,255,0.35);
+  color: #ffffff;
+}
+.dashboard-surface button[class*="ghost"],
+.dashboard-surface button[class*="outline"] {
+  color: #ffffff;
+}
+.dashboard-surface button[class*="ghost"]:hover,
+.dashboard-surface button[class*="outline"]:hover {
+  background: rgba(255,255,255,0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Badges */
+.dashboard-surface [class*="badge"],
+.dashboard-surface .badge {
+  border-color: rgba(255,255,255,0.35);
+}
+
+/* Separators */
+.dashboard-surface hr,
+.dashboard-surface [role="separator"] {
+  border-color: rgba(255,255,255,0.2) !important;
+  background-color: rgba(255,255,255,0.2) !important;
+}
+
+/* Links */
+.dashboard-surface a { color: #bfdbfe; }
+.dashboard-surface a:hover { color: #ffffff; }
+
