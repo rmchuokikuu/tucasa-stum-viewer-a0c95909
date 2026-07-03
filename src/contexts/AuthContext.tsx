@@ -104,6 +104,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) await fetchUserRoles(user.id);
   };
 
+  const refreshProfile = async () => {
+    if (user) await fetchProfile(user.id);
+  };
+
+
   useEffect(() => {
     let mounted = true;
 
