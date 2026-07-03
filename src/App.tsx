@@ -20,8 +20,13 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+function needsOnboarding(profile: any) {
+  if (!profile) return true;
+  return !profile.course || !profile.year_of_study;
+}
+
+function ProtectedRoute({ children, allowIncomplete = false }: { children: React.ReactNode; allowIncomplete?: boolean }) {
+  const { user, profile, loading } = useAuth();
   const [dashboardReady, setDashboardReady] = useState(false);
   const showSplash = useStartupSplash(loading, dashboardReady, Boolean(user));
 
@@ -40,14 +45,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [user]);
   if (showSplash) return <StartupScreen />;
   if (!user) return <Navigate to="/auth" replace />;
+  if (!allowIncomplete && needsOnboarding(profile)) return <Navigate to="/welcome" replace />;
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const showSplash = useStartupSplash(loading, true, Boolean(user));
   if (showSplash) return <StartupScreen />;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    if (needsOnboarding(profile)) return <Navigate to="/welcome" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
   return <>{children}</>;
 }
 
@@ -58,7 +67,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-        <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
+        <Route path="/welcome" element={<ProtectedRoute allowIncomplete><Welcome /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/members" element={<ProtectedRoute><Members /></ProtectedRoute>} />
         <Route path="/leadership" element={<ProtectedRoute><Leadership /></ProtectedRoute>} />
@@ -70,6 +79,7 @@ function AnimatedRoutes() {
     </PageTransition>
   );
 }
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
