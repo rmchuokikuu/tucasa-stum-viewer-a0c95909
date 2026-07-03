@@ -638,18 +638,23 @@
   color: rgba(255,255,255,0.7) !important;
 }
 
-/* Cards → glassmorphism */
+/* Cards → light glass tile like the members overlay */
 .dashboard-surface [class*="rounded-lg"].border.bg-card,
 .dashboard-surface .bg-card,
 .dashboard-surface [data-slot="card"] {
-  background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.05));
-  border: 1px solid rgba(255,255,255,0.30);
-  box-shadow: 0 32px 90px -30px rgba(2,8,23,0.75);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-radius: 24px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  box-shadow: 0 20px 60px -30px rgba(2,8,23,0.55);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-radius: 20px;
   color: #ffffff;
 }
+.dashboard-surface [data-slot="card"]:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.32);
+}
+
 
 /* Tables */
 .dashboard-surface table { color: #ffffff; }
