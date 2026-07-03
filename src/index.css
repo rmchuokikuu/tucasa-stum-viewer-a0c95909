@@ -4,75 +4,76 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 220 30% 15%;
+    /* Dark-blue glassmorphism palette — mirrors the members overlay across all dashboard pages */
+    --background: 220 55% 16%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 30% 15%;
+    --card: 218 50% 22%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 15%;
+    --popover: 220 55% 18%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 217 54% 27%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 210 100% 70%;
+    --primary-foreground: 220 60% 15%;
 
-    --secondary: 40 30% 94%;
-    --secondary-foreground: 220 30% 15%;
+    --secondary: 218 40% 28%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 40 20% 92%;
-    --muted-foreground: 220 15% 45%;
+    --muted: 218 35% 26%;
+    --muted-foreground: 210 30% 82%;
 
-    --accent: 42 55% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 80% 62%;
+    --accent-foreground: 220 60% 15%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 72% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 15% 85%;
-    --input: 40 15% 85%;
-    --ring: 217 54% 27%;
+    --border: 210 40% 80%;
+    --input: 218 40% 30%;
+    --ring: 210 100% 70%;
 
     --radius: 0.75rem;
 
-    --success: 155 60% 40%;
+    --success: 155 60% 50%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 95% 55%;
-    --warning-foreground: 220 30% 15%;
-    --info: 217 54% 38%;
-    --info-foreground: 0 0% 100%;
+    --warning: 38 95% 60%;
+    --warning-foreground: 220 60% 15%;
+    --info: 210 100% 70%;
+    --info-foreground: 220 60% 15%;
 
-    --gold: 42 55% 52%;
-    --gold-light: 42 60% 62%;
-    --gold-dark: 38 50% 42%;
+    --gold: 42 80% 62%;
+    --gold-light: 42 85% 72%;
+    --gold-dark: 38 60% 48%;
     --church-blue: 217 54% 27%;
-    --church-blue-light: 217 45% 38%;
+    --church-blue-light: 217 60% 55%;
     --church-blue-dark: 220 60% 18%;
-    --emerald: 155 60% 40%;
-    --navy: 220 40% 18%;
+    --emerald: 155 60% 50%;
+    --navy: 220 60% 15%;
     --cream: 40 30% 94%;
-    --bronze: 25 60% 45%;
-    --silver: 220 10% 70%;
+    --bronze: 25 60% 55%;
+    --silver: 220 10% 80%;
 
-    --gradient-gold: linear-gradient(135deg, hsl(42 55% 52%), hsl(42 60% 62%));
-    --gradient-hero: linear-gradient(160deg, hsl(217 54% 27%), hsl(217 45% 38%), hsl(220 40% 22%));
-    --gradient-church-blue: linear-gradient(135deg, hsl(217 54% 27%), hsl(217 45% 38%));
-    --gradient-emerald: linear-gradient(135deg, hsl(155 60% 40%), hsl(155 50% 55%));
-    --gradient-badge: linear-gradient(135deg, hsl(42 55% 52%), hsl(25 60% 45%));
+    --gradient-gold: linear-gradient(135deg, hsl(42 80% 62%), hsl(42 85% 72%));
+    --gradient-hero: linear-gradient(160deg, hsl(220 60% 22%), hsl(217 60% 32%), hsl(220 55% 18%));
+    --gradient-church-blue: linear-gradient(135deg, hsl(217 60% 40%), hsl(210 80% 60%));
+    --gradient-emerald: linear-gradient(135deg, hsl(155 60% 45%), hsl(170 55% 55%));
+    --gradient-badge: linear-gradient(135deg, hsl(42 80% 62%), hsl(25 60% 55%));
 
-    --shadow-card: 0 4px 20px -4px hsl(220 30% 15% / 0.08);
-    --shadow-card-hover: 0 12px 40px -8px hsl(220 30% 15% / 0.18);
-    --shadow-glass: 0 8px 32px -8px hsl(220 30% 15% / 0.10);
-    --shadow-glow-gold: 0 0 30px hsl(42 55% 52% / 0.30);
-    --shadow-glow-blue: 0 0 25px hsl(217 54% 27% / 0.25);
+    --shadow-card: 0 12px 40px -12px rgba(2, 8, 23, 0.55);
+    --shadow-card-hover: 0 24px 60px -16px rgba(2, 8, 23, 0.7);
+    --shadow-glass: 0 20px 50px -18px rgba(2, 8, 23, 0.6);
+    --shadow-glow-gold: 0 0 30px hsl(42 80% 62% / 0.35);
+    --shadow-glow-blue: 0 0 25px hsl(210 100% 70% / 0.35);
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 30% 18%;
-    --sidebar-primary: 217 54% 27%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 42 55% 52%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 40 15% 88%;
-    --sidebar-ring: 217 54% 27%;
+    --sidebar-background: 220 55% 14%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 210 100% 70%;
+    --sidebar-primary-foreground: 220 60% 15%;
+    --sidebar-accent: 42 80% 62%;
+    --sidebar-accent-foreground: 220 60% 15%;
+    --sidebar-border: 210 30% 40%;
+    --sidebar-ring: 210 100% 70%;
   }
 }
 
