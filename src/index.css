@@ -638,44 +638,51 @@
   color: rgba(255,255,255,0.7) !important;
 }
 
-/* Cards → exact Welcome-page glass */
-.dashboard-surface [class*="rounded-lg"].border.bg-card,
+/* All cards → Apple-style liquid glass (no color tint). Hero is excluded (uses .hero-bg). */
+.dashboard-surface [data-slot="card"],
 .dashboard-surface .bg-card,
-.dashboard-surface [data-slot="card"] {
-  background-image: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.05)) !important;
-  background-color: transparent !important;
-  border: 1px solid rgba(255,255,255,0.30) !important;
-  box-shadow: 0 32px 90px -30px rgba(2,8,23,0.75) !important;
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-radius: 30px !important;
+.dashboard-surface [class*="rounded-lg"].border.bg-card {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 100%),
+    radial-gradient(120% 80% at 0% 0%, rgba(255,255,255,0.35), transparent 60%) !important;
+  background-color: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  box-shadow:
+    0 32px 90px -30px rgba(2,8,23,0.75),
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -1px 0 rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 28px !important;
   color: #ffffff;
   transition: transform 300ms cubic-bezier(0.25,0.8,0.25,1), box-shadow 300ms, border-color 300ms;
 }
-.dashboard-surface [data-slot="card"]:hover {
+.dashboard-surface [data-slot="card"]:hover,
+.dashboard-surface .bg-card:hover {
   transform: translateY(-2px);
   border-color: rgba(255,255,255,0.45) !important;
-  box-shadow: 0 40px 110px -30px rgba(2,8,23,0.85), 0 0 40px -10px rgba(96,165,250,0.35) !important;
+  box-shadow:
+    0 40px 110px -30px rgba(2,8,23,0.85),
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.10) !important;
 }
 
-/* Neutralize accent-colored gradient tiles/backgrounds so they don't fight the palette */
-.dashboard-surface [class*="bg-gradient-to-"]:not([data-keep-gradient]) {
-  background-image: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)) !important;
+/* Strip any colored gradient/backgrounds off card surfaces themselves */
+.dashboard-surface [data-slot="card"][class*="bg-gradient-to-"],
+.dashboard-surface [data-slot="card"][class*="bg-"] {
+  background-color: transparent !important;
+}
+
+/* Nested inner surfaces (stat blocks, list rows) also become subtle glass */
+.dashboard-surface [data-slot="card"] [class*="bg-white/"],
+.dashboard-surface [data-slot="card"] [class*="bg-muted"],
+.dashboard-surface [data-slot="card"] [class*="bg-accent"],
+.dashboard-surface [data-slot="card"] [class*="bg-secondary"] {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.18) !important;
   color: #ffffff !important;
 }
-.dashboard-surface [class*="from-yellow-"],
-.dashboard-surface [class*="from-amber-"],
-.dashboard-surface [class*="from-emerald-"],
-.dashboard-surface [class*="from-green-"],
-.dashboard-surface [class*="from-orange-"],
-.dashboard-surface [class*="from-violet-"],
-.dashboard-surface [class*="from-fuchsia-"],
-.dashboard-surface [class*="from-teal-"],
-.dashboard-surface [class*="from-cyan-"],
-.dashboard-surface [class*="from-church-"] {
-  background-image: linear-gradient(135deg, rgba(96,165,250,0.55), rgba(59,130,246,0.35)) !important;
-  color: #ffffff !important;
-}
+
 
 
 
