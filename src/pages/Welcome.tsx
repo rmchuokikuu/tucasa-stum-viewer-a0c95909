@@ -13,7 +13,7 @@ import { Sparkles, PartyPopper, Loader2, CheckCircle2 } from 'lucide-react';
 type Stage = 'form' | 'submitting' | 'celebrating' | 'redirecting';
 
 export default function Welcome() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -65,6 +65,7 @@ export default function Welcome() {
       setStage('form');
       return;
     }
+    await refreshProfile();
     setStage('celebrating');
     setTimeout(() => setStage('redirecting'), 2400);
     setTimeout(() => navigate('/dashboard', { replace: true }), 3800);

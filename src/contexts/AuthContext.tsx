@@ -28,6 +28,7 @@ interface AuthContextType {
   hasPermission: (permission: string) => boolean;
   highestLevel: 'union' | 'conference' | 'zone' | 'branch' | null;
   refreshRoles: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -102,6 +103,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshRoles = async () => {
     if (user) await fetchUserRoles(user.id);
   };
+
+  const refreshProfile = async () => {
+    if (user) await fetchProfile(user.id);
+  };
+
 
   useEffect(() => {
     let mounted = true;
@@ -202,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{
       user, session, profile, userRoles, loading,
-      isUnionLeader, isSuperAdmin, signIn, signUp, signOut, hasPermission, highestLevel, refreshRoles,
+      isUnionLeader, isSuperAdmin, signIn, signUp, signOut, hasPermission, highestLevel, refreshRoles, refreshProfile,
     }}>
       {children}
     </AuthContext.Provider>
