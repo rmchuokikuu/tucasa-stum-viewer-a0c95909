@@ -65,6 +65,7 @@ export default function Welcome() {
       setStage('form');
       return;
     }
+    await refreshProfile();
     setStage('celebrating');
     setTimeout(() => setStage('redirecting'), 2400);
     setTimeout(() => navigate('/dashboard', { replace: true }), 3800);
