@@ -28,6 +28,7 @@ interface AuthContextType {
   hasPermission: (permission: string) => boolean;
   highestLevel: 'union' | 'conference' | 'zone' | 'branch' | null;
   refreshRoles: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
