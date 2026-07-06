@@ -407,15 +407,15 @@ export default function Dashboard() {
       </Dialog>
 
       {isPlainMember && !myMembership && (
-        <Card className="border-dashed premium-card border-white/30">
-          <CardContent className="py-10 text-center px-4">
+        <GlassCard className="border-dashed">
+          <div className="py-10 text-center px-4">
             <Users className="h-10 w-10 mx-auto text-white/40 mb-4" />
             <h3 className="font-display text-lg mb-2 text-white">Your details are not available</h3>
             <p className="text-white/70 text-sm max-w-md mx-auto">
               Contact your branch leader.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
       )}
     </DashboardLayout>
   );
