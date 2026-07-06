@@ -147,14 +147,9 @@ export default function Dashboard() {
   };
 
   const handleModuleTap = (module: { title: string; to: string }) => {
-    if (window.matchMedia('(max-width: 768px)').matches) {
-      setActiveModule(module);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
     navigate(module.to);
   };
+
 
   const levelLabel = highestLevel
     ? highestLevel.charAt(0).toUpperCase() + highestLevel.slice(1) + ' Leader'
