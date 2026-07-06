@@ -264,32 +264,7 @@ export default function Dashboard() {
 
       {/* ───── MODULE CARDS ───── */}
       <section className="mb-8">
-        {activeModule && (
-          <>
-            <GlassOverlay onClick={() => setActiveModule(null)} className="z-40" />
-            <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 animate-slide-down">
-              <div className="w-full max-w-[420px]">
-                <GlassPanel
-                  title={activeModule.title}
-                  subtitle="Quick actions"
-                  showClose
-                  onClose={() => setActiveModule(null)}
-                >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigate(activeModule.to);
-                      setActiveModule(null);
-                    }}
-                    className="mt-4 w-full rounded-2xl bg-gradient-to-r from-church-blue to-church-blue-light px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-church-blue/20 hover:shadow-lg hover:shadow-church-blue/30 transition-all"
-                  >
-                    Open {activeModule.title}
-                  </button>
-                </GlassPanel>
-              </div>
-            </div>
-          </>
-        )}
+
 
         {visibleModules.length > 0 && (
           <div className="glass-card p-3 sm:p-5 xl:p-6 border border-white/15 shadow-2xl">
