@@ -258,3 +258,161 @@ export async function exportPDF(
 
   doc.save(`${filename}.pdf`);
 }
+
+// ============================================================
+// Leader-scoped Report PDF
+// ============================================================
+export interface LeaderReportMemberRow {
+  name: string;
+  branch?: string;
+  phone?: string | null;
+  institution?: string | null;
+  active: boolean;
+}
+
+export interface LeaderReportGroup {
+  name: string;                       // e.g. conference / zone / branch name
+  members: LeaderReportMemberRow[];
+}
+
+export interface LeaderReportData {
+  scopeLevel: 'union' | 'conference' | 'zone' | 'branch';
+  scopeName: string;                  // e.g. "North East Conference"
+  counts: {
+    conferences?: number;
+    zones?: number;
+    branches: number;
+    members: number;
+    active: number;
+  };
+  groupLabel: string;                 // "Conference" | "Zone" | "Branch"
+  groups: LeaderReportGroup[];
+}
+
+export async function exportLeaderReportPDF(
+  data: LeaderReportData,
+  filename: string,
+) {
+  const logoBase64 = await imageToBase64('/PCM-logo.png');
+  const sdaLogoBase64 = await imageToBase64('/SDA-logo.png');
+
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const sidePanelW = pageW * (104 / 848);
+  const leftMargin = 10;
+  const rightMargin = sidePanelW + 4;
+
+  const headerBottom = drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+  const scopeTitle =
+    data.scopeLevel.charAt(0).toUpperCase() + data.scopeLevel.slice(1);
+  const title = `${scopeTitle} Leader Report — ${data.scopeName}`;
+
+  doc.setTextColor(...BRAND_PURPLE_DARK);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text(title, leftMargin, headerBottom + 4);
+  doc.setDrawColor(...BRAND_LINE);
+  doc.setLineWidth(0.4);
+  doc.line(leftMargin, headerBottom + 6, pageW - rightMargin, headerBottom + 6);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(60, 60, 60);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, leftMargin, headerBottom + 11);
+
+  // ---------- Counts summary table ----------
+  const countRows: (string | number)[][] = [];
+  if (data.counts.conferences != null) countRows.push(['Conferences', data.counts.conferences]);
+  if (data.counts.zones != null) countRows.push(['Zones', data.counts.zones]);
+  countRows.push(['Branches', data.counts.branches]);
+  countRows.push(['Total Members', data.counts.members]);
+  countRows.push(['Active Members', data.counts.active]);
+  countRows.push([
+    'Inactive Members',
+    Math.max(0, data.counts.members - data.counts.active),
+  ]);
+
+  autoTable(doc, {
+    head: [['Summary', 'Count']],
+    body: countRows,
+    startY: headerBottom + 15,
+    margin: { left: leftMargin, right: rightMargin, top: 44, bottom: 18 },
+    styles: { fontSize: 9, cellPadding: 2.5, textColor: [40, 40, 40] },
+    headStyles: { fillColor: BRAND_PURPLE, textColor: [255, 255, 255], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 244, 252] },
+    columnStyles: { 1: { halign: 'right', cellWidth: 40 } },
+    didDrawPage: () => {
+      drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+    },
+  });
+
+  // ---------- Members grouped by sublevel ----------
+  const showBranchCol = data.scopeLevel !== 'branch';
+
+  for (const group of data.groups) {
+    let y =
+      (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
+        .finalY + 8;
+    const pageH = doc.internal.pageSize.getHeight();
+    if (y > pageH - 40) {
+      doc.addPage();
+      drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+      y = 50;
+    }
+
+    doc.setTextColor(...BRAND_PURPLE_DARK);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(
+      `${data.groupLabel}: ${group.name}  (${group.members.length} members)`,
+      leftMargin,
+      y,
+    );
+
+    const head = showBranchCol
+      ? [['#', 'Full Name', 'Branch', 'Phone', 'Status']]
+      : [['#', 'Full Name', 'Phone', 'Institution', 'Status']];
+
+    const body = group.members.map((m, i) =>
+      showBranchCol
+        ? [
+            i + 1,
+            m.name,
+            m.branch || '',
+            m.phone || '',
+            m.active ? 'Active' : 'Inactive',
+          ]
+        : [
+            i + 1,
+            m.name,
+            m.phone || '',
+            m.institution || '',
+            m.active ? 'Active' : 'Inactive',
+          ],
+    );
+
+    autoTable(doc, {
+      head,
+      body,
+      startY: y + 3,
+      margin: { left: leftMargin, right: rightMargin, top: 44, bottom: 18 },
+      styles: { fontSize: 8, cellPadding: 2, textColor: [40, 40, 40] },
+      headStyles: { fillColor: BRAND_PURPLE, textColor: [255, 255, 255], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 244, 252] },
+      columnStyles: { 0: { halign: 'right', cellWidth: 10 } },
+      didDrawPage: () => {
+        drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+      },
+    });
+  }
+
+  const totalPages = (doc as unknown as {
+    internal: { getNumberOfPages: () => number };
+  }).internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    drawFooter(doc, i, totalPages);
+  }
+
+  doc.save(`${filename}.pdf`);
+}

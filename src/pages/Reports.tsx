@@ -4,8 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle, FileDown } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
+import { exportLeaderReportPDF, type LeaderReportData } from '@/lib/exports';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
@@ -60,6 +61,7 @@ export default function Reports() {
     course?: string | null; course_duration?: number | null; year_of_study?: number | null;
   } | null>(null);
   const [totals, setTotals] = useState({ members: 0, active: 0, zones: 0, conferences: 0, branches: 0 });
+  const [leaderReport, setLeaderReport] = useState<LeaderReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -193,6 +195,83 @@ export default function Reports() {
       setMode(scopedMode);
       setPrimaryStats(primary);
       setHierarchyRows(hRows);
+
+      // Build leader report (grouped members by sub-level)
+      if (scopedMode !== 'personal') {
+        const branchName = (id: string) => branches.find(b => b.id === id)?.name || '';
+        const memberRow = (m: any) => ({
+          name: m.full_name,
+          branch: branchName(m.branch_id),
+          phone: m.phone,
+          institution: m.institution,
+          active: !!m.is_active,
+        });
+
+        let groupLabel = 'Branch';
+        let groups: { name: string; members: ReturnType<typeof memberRow>[] }[] = [];
+        let scopeName = '';
+
+        if (scopedMode === 'union') {
+          groupLabel = 'Conference';
+          scopeName = unions[0]?.name || 'Union';
+          groups = conferences
+            .map(c => {
+              const cZones = zones.filter(z => z.conference_id === c.id);
+              const cBranchIds = new Set(branches.filter(b => cZones.some(z => z.id === b.zone_id)).map(b => b.id));
+              const gm = scopedMembers.filter(m => cBranchIds.has(m.branch_id)).map(memberRow);
+              return { name: c.name, members: gm };
+            })
+            .filter(g => g.members.length > 0);
+        } else if (scopedMode === 'conference') {
+          groupLabel = 'Zone';
+          const myConfs = conferences.filter(c => scopedConfIds.has(c.id));
+          scopeName = myConfs.map(c => c.name).join(', ') || 'Conference';
+          groups = zones
+            .filter(z => scopedConfIds.has(z.conference_id))
+            .map(z => {
+              const zBranchIds = new Set(branches.filter(b => b.zone_id === z.id).map(b => b.id));
+              const gm = scopedMembers.filter(m => zBranchIds.has(m.branch_id)).map(memberRow);
+              return { name: z.name, members: gm };
+            })
+            .filter(g => g.members.length > 0);
+        } else if (scopedMode === 'zone') {
+          groupLabel = 'Branch';
+          const myZones = zones.filter(z => scopedZoneIds.has(z.id));
+          scopeName = myZones.map(z => z.name).join(', ') || 'Zone';
+          groups = branches
+            .filter(b => scopedZoneIds.has(b.zone_id))
+            .map(b => ({
+              name: b.name,
+              members: scopedMembers.filter(m => m.branch_id === b.id).map(memberRow),
+            }))
+            .filter(g => g.members.length > 0);
+        } else if (scopedMode === 'branch') {
+          groupLabel = 'Branch';
+          const myBranches = branches.filter(b => scopedBranchIds.has(b.id));
+          scopeName = myBranches.map(b => b.name).join(', ') || 'Branch';
+          groups = myBranches.map(b => ({
+            name: b.name,
+            members: scopedMembers.filter(m => m.branch_id === b.id).map(memberRow),
+          }));
+        }
+
+        setLeaderReport({
+          scopeLevel: scopedMode,
+          scopeName,
+          counts: {
+            conferences: scopedMode === 'union' ? scopedConfIds.size : undefined,
+            zones: scopedMode === 'union' || scopedMode === 'conference' ? scopedZoneIds.size : undefined,
+            branches: scopedBranchIds.size,
+            members: scopedMembers.length,
+            active: scopedMembers.filter(m => m.is_active).length,
+          },
+          groupLabel,
+          groups,
+        });
+      } else {
+        setLeaderReport(null);
+      }
+
       setLoading(false);
     };
     fetchData();
@@ -258,11 +337,28 @@ export default function Reports() {
               <ArrowLeft className="h-4 w-4" />
             </GlassButton>
             {mode !== 'personal' && (
-              <ExportMenu
-                rows={hierarchyRows}
-                filename="tucasa-hierarchy-report"
-                title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
-              />
+              <>
+                {leaderReport && (
+                  <GlassButton
+                    size="sm"
+                    className="gap-1"
+                    onClick={() =>
+                      exportLeaderReportPDF(
+                        leaderReport,
+                        `tucasa-${leaderReport.scopeLevel}-leader-report`,
+                      ).catch(err => console.error('Leader PDF export failed:', err))
+                    }
+                  >
+                    <FileDown className="h-4 w-4" />
+                    <span className="hidden sm:inline">My Leader Report</span>
+                  </GlassButton>
+                )}
+                <ExportMenu
+                  rows={hierarchyRows}
+                  filename="tucasa-hierarchy-report"
+                  title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
+                />
+              </>
             )}
           </div>
         </div>
