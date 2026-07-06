@@ -116,19 +116,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) {
-        const [, , superRes] = await Promise.all([
-          fetchProfile(session.user.id),
-          fetchUserRoles(session.user.id),
-          supabase.rpc('is_super_admin', { _uid: session.user.id }),
-        ]);
-        if (mounted) setIsSuperAdmin(Boolean((superRes as any)?.data));
-      } else {
-        setProfile(null);
-        setUserRoles([]);
-        setIsSuperAdmin(false);
+      try {
+        if (session?.user) {
+          const results = await Promise.allSettled([
+            fetchProfile(session.user.id),
+            fetchUserRoles(session.user.id),
+            supabase.rpc('is_super_admin', { _uid: session.user.id }),
+          ]);
+          const superRes = results[2];
+          const superData = superRes.status === 'fulfilled' ? (superRes.value as any)?.data : false;
+          if (mounted) setIsSuperAdmin(Boolean(superData));
+          results.forEach((r, i) => {
+            if (r.status === 'rejected') console.error('[Auth] hydrate step', i, 'failed:', r.reason);
+          });
+        } else {
+          setProfile(null);
+          setUserRoles([]);
+          setIsSuperAdmin(false);
+        }
+      } catch (err) {
+        console.error('[Auth] hydrate failed:', err);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      if (mounted) setLoading(false);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
