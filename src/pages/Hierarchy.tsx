@@ -48,7 +48,7 @@ function HierarchyCard({ item, fields, canDelete, onDelete }: {
 
 export default function Hierarchy() {
   const navigate = useNavigate();
-  const { isUnionLeader, userRoles, profile } = useAuth();
+  const { isUnionLeader, isSuperAdmin, userRoles, profile } = useAuth();
   const { toast } = useToast();
 
   const [unions, setUnions] = useState<any[]>([]);
@@ -83,6 +83,8 @@ export default function Hierarchy() {
     [userRoles, conferences, zones, branches, profile?.branch_id],
   );
 
+  const isUnion = isUnionLeader || isSuperAdmin;
+
   // Data filtered by user's scope
   const visibleConferences = useMemo(
     () => isUnionLeader ? conferences : conferences.filter(c => scope.conferenceIds.has(c.id)),
@@ -98,10 +100,11 @@ export default function Hierarchy() {
   );
 
   // Permission to add at each level (based on top role)
-  const canAddUnion = isUnionLeader;
-  const canAddConference = isUnionLeader;
-  const canAddZone = isUnionLeader || scope.topLevel === 'conference';
-  const canAddBranch = isUnionLeader || scope.topLevel === 'conference' || scope.topLevel === 'zone';
+  const canAddUnion = isUnionLeader || isSuperAdmin;
+  // High-level mapping: union -> conference/zone/branch, conference -> zone/branch, zone -> branch
+  const canAddConference = isUnion || isSuperAdmin;
+  const canAddZone = isUnion || scope.topLevel === 'conference' || isSuperAdmin;
+  const canAddBranch = isUnion || scope.topLevel === 'conference' || scope.topLevel === 'zone' || isSuperAdmin;
 
   const openOverlayConferences = () => setOverlay({ level: 'conferences' });
   const openOverlayZones = (conference: any) => setOverlay({ level: 'zones', conference });

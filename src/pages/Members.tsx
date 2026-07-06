@@ -129,6 +129,19 @@ export default function Members() {
   const isUnion = userRoles.some(r => r.hierarchy_level === 'union') || isSuperAdmin;
   const isPlainMember = userRoles.length === 0 && !isSuperAdmin;
 
+  const startLevel = (() => {
+    if (isUnion) return 'conferences' as const;
+    const topLevel = userRoles.reduce<string | null>((best, r) => {
+      const order = { union: 0, conference: 1, zone: 2, branch: 3 } as any;
+      if (!best || order[r.hierarchy_level] < order[best]) return r.hierarchy_level;
+      return best;
+    }, null);
+    if (topLevel === 'conference') return 'zones' as const;
+    if (topLevel === 'zone') return 'branches' as const;
+    if (topLevel === 'branch') return 'members' as const;
+    return 'conferences' as const;
+  })();
+
   const { conferenceIds, zoneIds, branchIds } = (() => {
     if (isUnion) {
       return {
@@ -299,9 +312,10 @@ export default function Members() {
     setOverlay({ level: 'zones', conference });
   };
 
-  const openZoneOverlay = (zone: Zone) => {
-    if (!overlay || overlay.level !== 'zones') return;
-    setOverlay({ level: 'branches', conference: overlay.conference, zone });
+  const openZoneOverlay = (zone: Zone, conf?: Conference) => {
+    const confToUse = overlay?.level === 'zones' ? overlay.conference : conf;
+    if (!confToUse) return;
+    setOverlay({ level: 'branches', conference: confToUse, zone });
   };
 
   const openBranchFromOverlay = (branch: Branch) => {
@@ -387,14 +401,22 @@ export default function Members() {
       <GlassCard variant="subtle" className="mb-6 !p-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-1 max-w-full sm:max-w-md">
-            {view.level !== 'conferences' && (
+            {view.level !== 'conferences' && startLevel !== 'members' && (
               <GlassButton
                 size="icon"
                 onClick={() => {
                   setOverlay(null);
                   setRestoreOverlay(null);
                   setSearch('');
-                  setView({ level: 'conferences' });
+                  if (startLevel === 'conferences') {
+                    setView({ level: 'conferences' });
+                  } else if (startLevel === 'zones') {
+                    setView({ level: 'zones', conference: view.conference });
+                  } else if (startLevel === 'branches') {
+                    setView({ level: 'branches', conference: view.conference, zone: view.zone });
+                  } else {
+                    setView({ level: 'conferences' });
+                  }
                 }}
                 className="shrink-0"
               >
@@ -543,7 +565,7 @@ export default function Members() {
                 title={z.name}
                 subtitle={`${zoneBranchCount.get(z.id) || 0} branch${(zoneBranchCount.get(z.id) || 0) !== 1 ? 'es' : ''}`}
                 count={zoneMemberCount.get(z.id) || 0}
-                onClick={() => setView({ level: 'branches', conference: view.conference, zone: z })}
+                onClick={() => openZoneOverlay(z, view.conference)}
               />
             ))}
           </div>

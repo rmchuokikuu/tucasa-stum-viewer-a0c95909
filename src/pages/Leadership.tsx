@@ -22,11 +22,36 @@ interface LeaderRow {
   user_email: string;
   user_name: string;
   role_name: string;
+  level_id: string;
   hierarchy_level: string;
   level_name: string;
   is_active: boolean;
   end_date: string | null;
 }
+
+const LEADERSHIP_POSITIONS = [
+  'Chairperson',
+  'Chaplain',
+  'Deputy Chairperson',
+  'Executive Secretary',
+  'Deputy Executive Secretary',
+  'Treasurer',
+  'Deputy Treasurer',
+  'Communication Director',
+  'Deputy Communication Director',
+  'Spiritual & Evangelism Coordinator',
+  'Deputy Spiritual & Evangelism Coordinator',
+  'Internal Auditor',
+  'Education Coordinator',
+  'Medical Missionary Coordinator',
+  'Project Manager',
+  'Religious Liberty Coordinator',
+  'Adventist Possibility Ministry Coordinator',
+  'Music Coordinator',
+  'Youth Training Coordinator',
+] as const;
+
+const leadershipPositionIndex = new Map(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
 
 function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
   leader: LeaderRow;
@@ -75,7 +100,7 @@ export default function Leadership() {
   const [overlay, setOverlay] = useState<null | { level: 'conferences' } | { level: 'zones'; conference: any } | { level: 'branches'; conference: any; zone: any }>(null);
   const [restoreOverlay, setRestoreOverlay] = useState<null | { level: 'branches'; conference: any; zone: any }>(null);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
-  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null }[]>([]);
+  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; branch_id?: string | null }[]>([]);
   const [unions, setUnions] = useState<{ id: string; name: string }[]>([]);
   const [conferences, setConferences] = useState<{ id: string; name: string }[]>([]);
   const [zones, setZones] = useState<{ id: string; name: string; conference_id: string }[]>([]);
@@ -121,20 +146,21 @@ export default function Leadership() {
     else if (hasZoneRole) allowedLevels.push('branch');
     // Branch leaders (and plain members) cannot assign anyone.
   }
-  const canManage = allowedLevels.length > 0 && hasPermission('manage_leaders');
+  const canManage = allowedLevels.length > 0;
 
   const fetchData = async () => {
     const [urRes, rolesRes, profilesRes, unionsRes, confsRes, zonesRes, branchesRes] = await Promise.all([
       supabase.from('user_roles').select('*'),
       supabase.from('roles').select('id, name'),
-      supabase.from('profiles').select('user_id, full_name, email'),
+      supabase.from('profiles').select('user_id, full_name, email, branch_id'),
       supabase.from('unions').select('id, name'),
       supabase.from('conferences').select('id, name'),
       supabase.from('zones').select('id, name, conference_id'),
       supabase.from('branches').select('id, name, zone_id'),
     ]);
 
-    setRoles(rolesRes.data || []);
+    const allRoles = (rolesRes.data || []);
+    setRoles(allRoles);
     setProfiles(profilesRes.data || []);
     setUnions(unionsRes.data || []);
     setConferences(confsRes.data || []);
@@ -210,11 +236,18 @@ export default function Leadership() {
           user_email: '',
           user_name: prof?.full_name || 'Unknown',
           role_name: roleMap.get(ur.role_id) || 'Unknown',
+          level_id: ur.level_id,
           hierarchy_level: ur.hierarchy_level,
           level_name: levelMap.get(ur.level_id) || 'Unknown',
           is_active: ur.is_active ?? true,
           end_date: ur.end_date ?? null,
         };
+      })
+      .sort((a, b) => {
+        const aIndex = leadershipPositionIndex.has(a.role_name) ? leadershipPositionIndex.get(a.role_name)! : Number.MAX_SAFE_INTEGER;
+        const bIndex = leadershipPositionIndex.has(b.role_name) ? leadershipPositionIndex.get(b.role_name)! : Number.MAX_SAFE_INTEGER;
+        if (aIndex !== bIndex) return aIndex - bIndex;
+        return a.role_name.localeCompare(b.role_name);
       });
 
     setLeaders(enriched);
@@ -231,6 +264,34 @@ export default function Leadership() {
   };
   const closeOverlay = () => setOverlay(null);
 
+  const openAssignFor = (level: 'union' | 'conference' | 'zone' | 'branch', levelId: string) => {
+    setForm({ user_id: '', role_id: '', hierarchy_level: level, level_id: levelId });
+    setDialogOpen(true);
+  };
+
+  const profilesForScope = (level: string, levelId: string) => {
+    if (!level || !levelId) return [] as typeof profiles;
+    if (level === 'union') {
+      const confsInUnion = conferences.filter(c => c.union_id === levelId).map(c => c.id);
+      const zonesInConfs = zones.filter(z => confsInUnion.includes(z.conference_id)).map(z => z.id);
+      const branchesInZones = branches.filter(b => zonesInConfs.includes(b.zone_id)).map(b => b.id);
+      return profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
+    }
+    if (level === 'conference') {
+      const zonesInConf = zones.filter(z => z.conference_id === levelId).map(z => z.id);
+      const branchesInZones = branches.filter(b => zonesInConf.includes(b.zone_id)).map(b => b.id);
+      return profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
+    }
+    if (level === 'zone') {
+      const branchesInZone = branches.filter(b => b.zone_id === levelId).map(b => b.id);
+      return profiles.filter(p => p.branch_id && branchesInZone.includes(p.branch_id));
+    }
+    if (level === 'branch') {
+      return profiles.filter(p => p.branch_id === levelId);
+    }
+    return [] as typeof profiles;
+  };
+
   const levelOptions = () => {
     switch (form.hierarchy_level) {
       case 'union': return unions;
@@ -241,22 +302,42 @@ export default function Leadership() {
     }
   };
 
+  const resolveRoleId = async (roleName: string) => {
+    const existing = roles.find(r => r.name === roleName);
+    if (existing) return existing.id;
+
+    const { data: inserted, error: insertError } = await supabase
+      .from('roles')
+      .insert({ name: roleName })
+      .select('id, name')
+      .single();
+
+    if (insertError) throw insertError;
+    setRoles(prev => [...prev, inserted]);
+    return inserted.id;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.user_id || !form.role_id || !form.hierarchy_level || !form.level_id) return;
 
-    const { error } = await supabase.from('user_roles').insert({
-      user_id: form.user_id,
-      role_id: form.role_id,
-      hierarchy_level: form.hierarchy_level as any,
-      level_id: form.level_id,
-    });
+    try {
+      const roleId = await resolveRoleId(form.role_id);
+      const { error } = await supabase.from('user_roles').insert({
+        user_id: form.user_id,
+        role_id: roleId,
+        hierarchy_level: form.hierarchy_level as any,
+        level_id: form.level_id,
+      });
 
-    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-    toast({ title: 'Leader assigned' });
-    setDialogOpen(false);
-    setForm({ user_id: '', role_id: '', hierarchy_level: '', level_id: '' });
-    fetchData();
+      if (error) throw error;
+      toast({ title: 'Leader assigned' });
+      setDialogOpen(false);
+      setForm({ user_id: '', role_id: '', hierarchy_level: '', level_id: '' });
+      fetchData();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Could not assign leader.', variant: 'destructive' });
+    }
   };
 
 
@@ -309,26 +390,19 @@ export default function Leadership() {
                 <DialogHeader className="sr-only"><DialogTitle>Assign Leader</DialogTitle></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-white/90">User</Label>
-                    <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select user" /></SelectTrigger>
-                      <SelectContent>
-                        {profiles.map(p => <SelectItem key={p.user_id} value={p.user_id}>{p.full_name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
                     <Label className="text-white/90">Role</Label>
                     <Select value={form.role_id} onValueChange={v => setForm(f => ({ ...f, role_id: v }))}>
                       <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select role" /></SelectTrigger>
                       <SelectContent>
-                        {roles.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                        {LEADERSHIP_POSITIONS.map(name => (
+                          <SelectItem key={name} value={name}>{name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-white/90">Level</Label>
-                    <Select value={form.hierarchy_level} onValueChange={v => setForm(f => ({ ...f, hierarchy_level: v, level_id: '' }))}>
+                    <Select value={form.hierarchy_level} onValueChange={v => setForm(f => ({ ...f, hierarchy_level: v, level_id: '', user_id: '' }))}>
                       <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select level" /></SelectTrigger>
                       <SelectContent>
                         {allowedLevels.includes('union') && <SelectItem value="union">Union</SelectItem>}
@@ -349,6 +423,16 @@ export default function Leadership() {
                       </Select>
                     </div>
                   )}
+                  {/* User select moved to bottom and filtered by selected scope */}
+                  <div className="space-y-2">
+                    <Label className="text-white/90">User</Label>
+                    <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select user" /></SelectTrigger>
+                      <SelectContent>
+                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{p.full_name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <GlassButton type="submit" className="w-full">Assign</GlassButton>
                 </form>
               </GlassPanel>
@@ -370,23 +454,23 @@ export default function Leadership() {
             branch:     { label: 'Branch',     Icon: GitBranch },
           };
           const order: Array<'union'|'conference'|'zone'|'branch'> = ['union','conference','zone','branch'];
-          // Flatten into one entry per (level, level_name)
-          const groups: Array<{ key: string; lvl: 'union'|'conference'|'zone'|'branch'; scopeName: string; list: LeaderRow[] }> = [];
+          // Flatten into one entry per (level, level_id)
+          const groups: Array<{ key: string; lvl: 'union'|'conference'|'zone'|'branch'; scopeId: string; scopeName: string; list: LeaderRow[] }> = [];
           order.forEach(lvl => {
             const rows = leaders.filter(l => l.hierarchy_level === lvl);
-            const byScope = new Map<string, LeaderRow[]>();
+            const byScope = new Map<string, { name: string; list: LeaderRow[] }>();
             rows.forEach(r => {
-              const arr = byScope.get(r.level_name) || [];
-              arr.push(r);
-              byScope.set(r.level_name, arr);
+              const existing = byScope.get(r.level_id) || { name: r.level_name, list: [] };
+              existing.list.push(r);
+              byScope.set(r.level_id, existing);
             });
-            [...byScope.entries()].forEach(([scopeName, list]) => {
-              groups.push({ key: `${lvl}::${scopeName}`, lvl, scopeName, list });
+            [...byScope.entries()].forEach(([scopeId, entry]) => {
+              groups.push({ key: `${lvl}::${scopeId}`, lvl, scopeId, scopeName: entry.name, list: entry.list });
             });
           });
           return (
             <div className="space-y-3">
-              {groups.map(({ key, lvl, scopeName, list }) => {
+              {groups.map(({ key, lvl, scopeId, scopeName, list }) => {
                 const meta = levelMeta[lvl];
                 return (
                   <Collapsible key={key} asChild open={openLevel === key} onOpenChange={(o) => setOpenLevel(o ? key : null)}>
@@ -399,8 +483,13 @@ export default function Leadership() {
                           <h2 className="font-display text-base sm:text-lg font-semibold text-white truncate">{scopeName}</h2>
                           <p className="text-[11px] uppercase tracking-[0.2em] text-white/60">{meta.label}</p>
                         </div>
-                        <Badge variant="outline" className="bg-white/10 border-white/30 text-white">{list.length}</Badge>
-                        <ChevronDown className="h-4 w-4 text-white/70 transition-transform group-data-[state=open]:rotate-180" />
+                            <Badge variant="outline" className="bg-white/10 border-white/30 text-white">{list.length}</Badge>
+                            {canManage && allowedLevels.includes(lvl) && (
+                              <GlassButton size="sm" onClick={(e) => { e.stopPropagation(); openAssignFor(lvl, scopeId); }} className="ml-2 gap-1 hidden sm:flex">
+                                <Plus className="h-4 w-4 mr-1" /> <span className="text-sm">Add</span>
+                              </GlassButton>
+                            )}
+                            <ChevronDown className="h-4 w-4 text-white/70 transition-transform group-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="px-3 sm:px-4 pb-3 sm:pb-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

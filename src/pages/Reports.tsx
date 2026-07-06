@@ -56,7 +56,7 @@ export default function Reports() {
   const [hierarchyRows, setHierarchyRows] = useState<HierarchyExportRow[]>([]);
   const [mode, setMode] = useState<ScopeMode>('personal');
   const [personal, setPersonal] = useState<{
-    full_name: string; email: string | null; phone: string | null; institution: string | null;
+    full_name: string; phone: string | null; institution: string | null;
     is_active: boolean; branch_name?: string; zone_name?: string; conference_name?: string; union_name?: string;
     course?: string | null; course_duration?: number | null; year_of_study?: number | null;
   } | null>(null);
@@ -67,7 +67,7 @@ export default function Reports() {
   useEffect(() => {
     const fetchData = async () => {
       const [membersRes, branchesRes, zonesRes, confsRes, unionsRes] = await Promise.all([
-        supabase.from('members').select('id, full_name, is_active, branch_id, user_id, phone, institution, email'),
+        supabase.from('members').select('id, full_name, is_active, branch_id, user_id, phone, institution'),
         supabase.from('branches').select('id, name, zone_id'),
         supabase.from('zones').select('id, name, conference_id'),
         supabase.from('conferences').select('id, name, union_id'),
@@ -144,7 +144,6 @@ export default function Reports() {
           const u: any = c ? unions.find(x => x.id === c.union_id) : null;
           setPersonal({
             full_name: me.full_name,
-            email: (me as any).email,
             phone: (me as any).phone,
             institution: (me as any).institution,
             is_active: me.is_active,
@@ -359,7 +358,6 @@ export default function Reports() {
               : <><XCircle className="h-3.5 w-3.5 text-red-300" /> Inactive</>}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white">
-            {personal.email && <div><span className="text-white/60">Email:</span> {personal.email}</div>}
             {personal.phone && <div><span className="text-white/60">Phone:</span> {personal.phone}</div>}
             {personal.institution && <div><span className="text-white/60">Institution:</span> {personal.institution}</div>}
             {personal.course && <div><span className="text-white/60">Course:</span> {personal.course}</div>}
