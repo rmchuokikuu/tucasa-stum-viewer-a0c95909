@@ -337,28 +337,12 @@ export default function Reports() {
               <ArrowLeft className="h-4 w-4" />
             </GlassButton>
             {mode !== 'personal' && (
-              <>
-                {leaderReport && (
-                  <GlassButton
-                    size="sm"
-                    className="gap-1"
-                    onClick={() =>
-                      exportLeaderReportPDF(
-                        leaderReport,
-                        `tucasa-${leaderReport.scopeLevel}-leader-report`,
-                      ).catch(err => console.error('Leader PDF export failed:', err))
-                    }
-                  >
-                    <FileDown className="h-4 w-4" />
-                    <span className="hidden sm:inline">My Leader Report</span>
-                  </GlassButton>
-                )}
-                <ExportMenu
-                  rows={hierarchyRows}
-                  filename="tucasa-hierarchy-report"
-                  title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
-                />
-              </>
+              <ExportMenu
+                rows={hierarchyRows}
+                filename={leaderReport ? `tucasa-${leaderReport.scopeLevel}-leader-report` : 'tucasa-hierarchy-report'}
+                title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
+                leaderReport={leaderReport}
+              />
             )}
           </div>
         </div>
