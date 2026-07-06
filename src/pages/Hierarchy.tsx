@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Trash2, Building2, MapPin, GitBranch, Globe, Network, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
-import { GlassOverlay, GlassPanel, GlassScrollContainer } from '@/components/glass';
+import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton } from '@/components/glass';
 import { computeScope } from '@/lib/scope';
 
 function HierarchyCard({ item, fields, canDelete, onDelete }: {
@@ -24,27 +24,25 @@ function HierarchyCard({ item, fields, canDelete, onDelete }: {
   onDelete: () => void;
 }) {
   return (
-    <Card className="premium-card-hover border border-white/30 mb-3">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <h3 className="font-medium text-sm text-white">{item.name}</h3>
-            <div className="space-y-0.5 mt-1">
-              {fields.map(f => (
-                <p key={f.label} className="text-xs text-white/70">
-                  <span className="text-white/60">{f.label}:</span> {f.value || '—'}
-                </p>
-              ))}
-            </div>
+    <GlassCard variant="interactive" className="mb-3 !p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-medium text-sm text-white">{item.name}</h3>
+          <div className="space-y-0.5 mt-1">
+            {fields.map(f => (
+              <p key={f.label} className="text-xs text-white/70">
+                <span className="text-white/60">{f.label}:</span> {f.value || '—'}
+              </p>
+            ))}
           </div>
-          {canDelete && (
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-white hover:bg-white/10" onClick={onDelete}>
-              <Trash2 className="h-3.5 w-3.5 text-red-400" />
-            </Button>
-          )}
         </div>
-      </CardContent>
-    </Card>
+        {canDelete && (
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-white hover:bg-white/10" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5 text-red-400" />
+          </Button>
+        )}
+      </div>
+    </GlassCard>
   );
 }
 
@@ -202,22 +200,19 @@ export default function Hierarchy() {
         title="Hierarchy"
         description="View and manage the organizational structure of unions, conferences, zones, and branches."
       />
-      <div className="premium-card p-5 mb-6 border border-white/30 shadow-2xl">
-        <div className="page-header mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="page-title text-2xl sm:text-3xl text-white">Hierarchy</h1>
-            <p className="page-description text-sm text-white/70">Manage the organizational structure.</p>
-          </div>
+      <GlassPanel subtitle="Structure" title="Hierarchy" className="mb-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <p className="text-sm text-white/80">Manage the organizational structure.</p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full bg-white/10 border-white/30 text-white hover:bg-white/20" aria-label="Back to dashboard">
+            <GlassButton size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={openOverlayConferences} className="h-10 w-10 rounded-full bg-white/10 border-white/30 text-white hover:bg-white/20">
+            </GlassButton>
+            <GlassButton size="icon" onClick={openOverlayConferences} className="h-10 w-10 rounded-full" aria-label="Browse conferences">
               <Network className="h-4 w-4" />
-            </Button>
+            </GlassButton>
           </div>
         </div>
-      </div>
+      </GlassPanel>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">

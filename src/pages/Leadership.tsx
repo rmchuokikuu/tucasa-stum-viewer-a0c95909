@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +14,7 @@ import { Plus, Trash2, Shield, Network, MapPin, GitBranch, ArrowLeft, Globe, Bui
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
+import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
 
 interface LeaderRow {
   id: string;
@@ -35,36 +35,33 @@ function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
   onToggleActive: (id: string, next: boolean) => void;
 }) {
   return (
-    <Card className="premium-card-hover border border-white/30 mb-3">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <h3 className="font-medium text-sm truncate text-white">{leader.user_name}</h3>
-            {/* Email intentionally hidden in UI */}
-            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-              <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
-                <Shield className="h-2.5 w-2.5" />{leader.role_name}
-              </Badge>
-              <Badge variant="secondary" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.hierarchy_level}</Badge>
-              <Badge variant={leader.is_active ? 'default' : 'outline'} className="text-[10px]">
-                {leader.is_active ? 'Active' : 'Inactive'}
-              </Badge>
-              <span className="text-xs text-muted-foreground">· {leader.level_name}</span>
-            </div>
+    <GlassCard variant="interactive" className="mb-3 !p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-medium text-sm truncate text-white">{leader.user_name}</h3>
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
+              <Shield className="h-2.5 w-2.5" />{leader.role_name}
+            </Badge>
+            <Badge variant="secondary" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.hierarchy_level}</Badge>
+            <Badge variant={leader.is_active ? 'default' : 'outline'} className="text-[10px]">
+              {leader.is_active ? 'Active' : 'Inactive'}
+            </Badge>
+            <span className="text-xs text-white/70">· {leader.level_name}</span>
           </div>
-          {canManage && (
-            <div className="flex flex-col gap-1 shrink-0">
-              <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2" onClick={() => onToggleActive(leader.id, !leader.is_active)}>
-                {leader.is_active ? 'Deactivate' : 'Activate'}
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onRemove(leader.id)}>
-                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-              </Button>
-            </div>
-          )}
         </div>
-      </CardContent>
-    </Card>
+        {canManage && (
+          <div className="flex flex-col gap-1 shrink-0">
+            <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2 text-white hover:bg-white/10" onClick={() => onToggleActive(leader.id, !leader.is_active)}>
+              {leader.is_active ? 'Deactivate' : 'Activate'}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/10" onClick={() => onRemove(leader.id)}>
+              <Trash2 className="h-3.5 w-3.5 text-red-400" />
+            </Button>
+          </div>
+        )}
+      </div>
+    </GlassCard>
   );
 }
 
@@ -286,22 +283,19 @@ export default function Leadership() {
         title="Leadership"
         description="Assign and manage leadership roles across TUCASA hierarchy levels."
       />
-      <div className="premium-card p-5 mb-6 border border-white/10 shadow-2xl">
-        <div className="page-header mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="page-title text-2xl sm:text-3xl">Leadership</h1>
-            <p className="page-description text-sm">Manage leaders across all organizational levels.</p>
-          </div>
+      <GlassPanel subtitle="Team" title="Leadership" className="mb-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <p className="text-sm text-white/80">Manage leaders across all organizational levels.</p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
+            <GlassButton size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={openOverlayConferences} className="h-10 w-10 rounded-full">
+            </GlassButton>
+            <GlassButton size="icon" onClick={openOverlayConferences} className="h-10 w-10 rounded-full" aria-label="Browse conferences">
               <Network className="h-4 w-4" />
-            </Button>
+            </GlassButton>
           </div>
         </div>
-      </div>
+      </GlassPanel>
 
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-muted-foreground">{leaders.length} leader{leaders.length !== 1 ? 's' : ''}</p>

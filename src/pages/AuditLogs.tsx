@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ExportMenu } from '@/components/ExportMenu';
 import { ShieldAlert, Search, ArrowLeft } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
 
 interface AuditRow {
   id: string;
@@ -109,26 +108,29 @@ export default function AuditLogs() {
         title="Audit Logs"
         description="Review the last 500 system changes for TUCASA STUM with audit logging."
       />
-      <div className="page-header flex items-start justify-between gap-3">
-        <div>
-          <h1 className="page-title text-2xl sm:text-3xl">Audit Logs</h1>
-          <p className="page-description text-sm">Last 500 changes across the system.</p>
+      <GlassPanel
+        subtitle="Audit"
+        title="Audit Logs"
+        className="mb-4"
+      >
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <p className="text-sm text-white/80">Last 500 changes across the system.</p>
+          <div className="flex items-center gap-2">
+            <GlassButton size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
+              <ArrowLeft className="h-4 w-4" />
+            </GlassButton>
+            <ExportMenu rows={exportRows} filename="audit-logs" title="TUCASA Audit Logs" />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <ExportMenu rows={exportRows} filename="audit-logs" title="TUCASA Audit Logs" />
-        </div>
-      </div>
+      </GlassPanel>
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+      <GlassCard variant="subtle" className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search actor, entity, id..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
+          <Input placeholder="Search actor, entity, id..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/60" />
         </div>
         <Select value={actionFilter} onValueChange={setActionFilter}>
-          <SelectTrigger className="w-full sm:w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[140px] bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All actions</SelectItem>
             <SelectItem value="created">Created</SelectItem>
@@ -137,65 +139,61 @@ export default function AuditLogs() {
           </SelectContent>
         </Select>
         <Select value={entityFilter} onValueChange={setEntityFilter}>
-          <SelectTrigger className="w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[160px] bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All entities</SelectItem>
             {entityTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
           </SelectContent>
         </Select>
-      </div>
+      </GlassCard>
 
       {loading ? (
-        <p className="text-center text-muted-foreground py-8">Loading...</p>
+        <p className="text-center text-white/70 py-8">Loading...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-center text-muted-foreground py-8">No audit entries match.</p>
+        <p className="text-center text-white/70 py-8">No audit entries match.</p>
       ) : (
         <>
           {/* Mobile cards */}
           <div className="md:hidden space-y-2">
             {filtered.map(r => (
-              <Card key={r.id}>
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge variant="outline" className={ACTION_COLORS[r.action] || ''}>{r.action}</Badge>
-                    <span className="text-[10px] text-muted-foreground">{new Date(r.created_at).toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm font-medium">{r.entity_type}</p>
-                  <p className="text-xs text-muted-foreground truncate">by {actorNames[r.actor_id || ''] || r.actor_id || 'system'}</p>
-                </CardContent>
-              </Card>
+              <GlassCard key={r.id} variant="subtle">
+                <div className="flex items-center justify-between mb-1">
+                  <Badge variant="outline" className={ACTION_COLORS[r.action] || ''}>{r.action}</Badge>
+                  <span className="text-[10px] text-white/70">{new Date(r.created_at).toLocaleString()}</span>
+                </div>
+                <p className="text-sm font-medium text-white">{r.entity_type}</p>
+                <p className="text-xs text-white/70 truncate">by {actorNames[r.actor_id || ''] || r.actor_id || 'system'}</p>
+              </GlassCard>
             ))}
           </div>
 
           {/* Desktop table */}
-          <Card className="hidden md:block">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Actor</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Entity</TableHead>
-                      <TableHead>Record ID</TableHead>
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/15 hover:bg-transparent">
+                    <TableHead className="text-white/85">Time</TableHead>
+                    <TableHead className="text-white/85">Actor</TableHead>
+                    <TableHead className="text-white/85">Action</TableHead>
+                    <TableHead className="text-white/85">Entity</TableHead>
+                    <TableHead className="text-white/85">Record ID</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map(r => (
+                    <TableRow key={r.id} className="border-white/10 hover:bg-white/5">
+                      <TableCell className="text-xs whitespace-nowrap text-white/90">{new Date(r.created_at).toLocaleString()}</TableCell>
+                      <TableCell className="text-xs text-white/90">{actorNames[r.actor_id || ''] || r.actor_id || <span className="text-white/60">system</span>}</TableCell>
+                      <TableCell><Badge variant="outline" className={ACTION_COLORS[r.action] || ''}>{r.action}</Badge></TableCell>
+                      <TableCell className="text-xs font-mono text-white/90">{r.entity_type}</TableCell>
+                      <TableCell className="text-xs font-mono text-white/70">{r.entity_id?.slice(0, 8)}…</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filtered.map(r => (
-                      <TableRow key={r.id}>
-                        <TableCell className="text-xs whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</TableCell>
-                        <TableCell className="text-xs">{actorNames[r.actor_id || ''] || r.actor_id || <span className="text-muted-foreground">system</span>}</TableCell>
-                        <TableCell><Badge variant="outline" className={ACTION_COLORS[r.action] || ''}>{r.action}</Badge></TableCell>
-                        <TableCell className="text-xs font-mono">{r.entity_type}</TableCell>
-                        <TableCell className="text-xs font-mono text-muted-foreground">{r.entity_id?.slice(0, 8)}…</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </GlassCard>
         </>
       )}
     </DashboardLayout>

@@ -2,24 +2,24 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Button } from '@/components/ui/button';
+import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
+import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
 
+// Glass-friendly chart palette — white/blue translucent
 const CHART_COLORS = [
-  'hsl(142, 60%, 35%)',
-  'hsl(38, 90%, 55%)',
-  'hsl(210, 80%, 50%)',
-  'hsl(340, 65%, 50%)',
-  'hsl(270, 60%, 50%)',
-  'hsl(180, 50%, 40%)',
-  'hsl(20, 80%, 50%)',
-  'hsl(100, 50%, 40%)',
+  'rgba(255,255,255,0.92)',
+  'rgba(186,230,253,0.85)',
+  'rgba(147,197,253,0.85)',
+  'rgba(96,165,250,0.85)',
+  'rgba(59,130,246,0.85)',
+  'rgba(191,219,254,0.85)',
+  'rgba(219,234,254,0.85)',
+  'rgba(125,211,252,0.85)',
 ];
 
 type Stat = { name: string; members: number; active: number; children?: number };
@@ -35,6 +35,18 @@ interface HierarchyExportRow {
 }
 
 type ScopeMode = 'personal' | 'branch' | 'zone' | 'conference' | 'union';
+
+function StatTile({ title, value, Icon }: { title: string; value: string | number; Icon: React.ComponentType<{ className?: string }> }) {
+  return (
+    <GlassCard className="p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-white/70 font-medium">{title}</p>
+        <Icon className="h-4 w-4 text-white/80" />
+      </div>
+      <div className="text-2xl sm:text-3xl font-semibold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">{value}</div>
+    </GlassCard>
+  );
+}
 
 export default function Reports() {
   const navigate = useNavigate();
@@ -115,7 +127,6 @@ export default function Reports() {
         userRoles.forEach(r => { if (r.hierarchy_level === 'branch') scopedBranchIds.add(r.level_id); });
         scopedZoneIds = new Set(branches.filter(b => scopedBranchIds.has(b.id)).map(b => b.zone_id));
         scopedConfIds = new Set(zones.filter(z => scopedZoneIds.has(z.id)).map(z => z.conference_id));
-        // For branch — show members individually
         const myBranches = branches.filter(b => scopedBranchIds.has(b.id));
         primary = myBranches.map(b => {
           const bMembers = members.filter(m => m.branch_id === b.id);
@@ -147,7 +158,6 @@ export default function Reports() {
         }
       }
 
-      // Totals within scope
       const scopedMembers = members.filter(m => scopedBranchIds.has(m.branch_id));
       setTotals({
         members: scopedMembers.length,
@@ -157,7 +167,6 @@ export default function Reports() {
         branches: scopedBranchIds.size,
       });
 
-      // Full hierarchy export within scope
       const unionMap = new Map(unions.map(u => [u.id, u.name]));
       const confMap = new Map(conferences.map(c => [c.id, c]));
       const zoneMap = new Map(zones.map(z => [z.id, z]));
@@ -200,7 +209,7 @@ export default function Reports() {
       <DashboardLayout>
         <SEO title="Reports" description="Loading TUCASA STUM reports and membership analytics." />
         <div className="flex items-center justify-center py-20">
-          <p className="text-muted-foreground">Loading reports...</p>
+          <p className="text-white/80">Loading reports...</p>
         </div>
       </DashboardLayout>
     );
@@ -225,159 +234,134 @@ export default function Reports() {
     ? `${highestLevel.charAt(0).toUpperCase()}${highestLevel.slice(1)}-scope reports`
     : mode === 'personal' ? 'My Report' : 'Reports';
 
+  const tooltipContentStyle: React.CSSProperties = {
+    background: 'rgba(23,58,130,0.85)',
+    border: '1px solid rgba(255,255,255,0.25)',
+    borderRadius: 14,
+    color: 'white',
+    backdropFilter: 'blur(16px)',
+  };
+
   return (
     <DashboardLayout>
       <SEO title="Reports" description="View membership reports scoped to your hierarchy in TUCASA STUM." />
-      <div className="page-header flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="page-title text-2xl sm:text-3xl">Reports</h1>
-          <p className="page-description text-sm">{scopeLabel} — statistics auto-filtered to your scope.</p>
+
+      <GlassPanel
+        subtitle={scopeLabel}
+        title="Reports"
+        className="mb-6"
+      >
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <p className="text-sm text-white/80">Statistics auto-filtered to your scope.</p>
+          <div className="flex items-center gap-2">
+            <GlassButton size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
+              <ArrowLeft className="h-4 w-4" />
+            </GlassButton>
+            {mode !== 'personal' && (
+              <ExportMenu
+                rows={hierarchyRows}
+                filename="tucasa-hierarchy-report"
+                title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
+              />
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          {mode !== 'personal' && (
-            <ExportMenu
-              rows={hierarchyRows}
-              filename="tucasa-hierarchy-report"
-              title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
-            />
-          )}
-        </div>
-      </div>
+      </GlassPanel>
 
       {mode === 'personal' && personal && (
-        <Card className="premium-card-hover mb-6">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
-              <UserCircle className="h-5 w-5 text-primary" /> {personal.full_name}
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm flex items-center gap-1">
-              {personal.is_active
-                ? <><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Active member</>
-                : <><XCircle className="h-3.5 w-3.5 text-destructive" /> Inactive</>}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            {personal.email && <div><span className="text-muted-foreground">Email:</span> {personal.email}</div>}
-            {personal.phone && <div><span className="text-muted-foreground">Phone:</span> {personal.phone}</div>}
-            {personal.institution && <div><span className="text-muted-foreground">Institution:</span> {personal.institution}</div>}
-            {personal.course && <div><span className="text-muted-foreground">Course:</span> {personal.course}</div>}
-            {personal.course_duration != null && <div><span className="text-muted-foreground">Duration:</span> {personal.course_duration} yrs</div>}
-            {personal.year_of_study != null && <div><span className="text-muted-foreground">Year of Study:</span> {personal.year_of_study}</div>}
-            {personal.union_name && <div><span className="text-muted-foreground">Union:</span> {personal.union_name}</div>}
-            {personal.conference_name && <div><span className="text-muted-foreground">Conference:</span> {personal.conference_name}</div>}
-            {personal.zone_name && <div><span className="text-muted-foreground">Zone:</span> {personal.zone_name}</div>}
-            {personal.branch_name && <div><span className="text-muted-foreground">Branch:</span> {personal.branch_name}</div>}
-          </CardContent>
-        </Card>
+        <GlassCard className="mb-6">
+          <div className="flex items-center gap-2 text-base sm:text-lg font-display text-white mb-1">
+            <UserCircle className="h-5 w-5 text-white/90" /> {personal.full_name}
+          </div>
+          <div className="text-xs sm:text-sm flex items-center gap-1 text-white/80 mb-4">
+            {personal.is_active
+              ? <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> Active member</>
+              : <><XCircle className="h-3.5 w-3.5 text-red-300" /> Inactive</>}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white">
+            {personal.email && <div><span className="text-white/60">Email:</span> {personal.email}</div>}
+            {personal.phone && <div><span className="text-white/60">Phone:</span> {personal.phone}</div>}
+            {personal.institution && <div><span className="text-white/60">Institution:</span> {personal.institution}</div>}
+            {personal.course && <div><span className="text-white/60">Course:</span> {personal.course}</div>}
+            {personal.course_duration != null && <div><span className="text-white/60">Duration:</span> {personal.course_duration} yrs</div>}
+            {personal.year_of_study != null && <div><span className="text-white/60">Year of Study:</span> {personal.year_of_study}</div>}
+            {personal.union_name && <div><span className="text-white/60">Union:</span> {personal.union_name}</div>}
+            {personal.conference_name && <div><span className="text-white/60">Conference:</span> {personal.conference_name}</div>}
+            {personal.zone_name && <div><span className="text-white/60">Zone:</span> {personal.zone_name}</div>}
+            {personal.branch_name && <div><span className="text-white/60">Branch:</span> {personal.branch_name}</div>}
+          </div>
+        </GlassCard>
       )}
 
       {mode !== 'personal' && (
         <>
-          {/* Summary cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            <Card className="premium-card-hover stat-card p-3 sm:p-6">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 p-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Total Members</CardTitle>
-                <Users className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1">
-                <div className="text-2xl sm:text-3xl font-bold font-display">{totals.members}</div>
-              </CardContent>
-            </Card>
-            <Card className="premium-card-hover stat-card p-3 sm:p-6">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 p-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Active Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-success" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1">
-                <div className="text-2xl sm:text-3xl font-bold font-display">{activeRate}%</div>
-              </CardContent>
-            </Card>
-            <Card className="premium-card-hover stat-card p-3 sm:p-6">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 p-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">{mode === 'branch' ? 'Branches' : mode === 'zone' ? 'Branches' : 'Zones'}</CardTitle>
-                <MapPin className="h-4 w-4 text-warning" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1">
-                <div className="text-2xl sm:text-3xl font-bold font-display">{mode === 'zone' || mode === 'branch' ? totals.branches : totals.zones}</div>
-              </CardContent>
-            </Card>
-            <Card className="premium-card-hover stat-card p-3 sm:p-6">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 p-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Conferences</CardTitle>
-                <Building2 className="h-4 w-4 text-info" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1">
-                <div className="text-2xl sm:text-3xl font-bold font-display">{totals.conferences}</div>
-              </CardContent>
-            </Card>
+            <StatTile title="Total Members" value={totals.members} Icon={Users} />
+            <StatTile title="Active Rate" value={`${activeRate}%`} Icon={TrendingUp} />
+            <StatTile title={mode === 'branch' || mode === 'zone' ? 'Branches' : 'Zones'} value={mode === 'zone' || mode === 'branch' ? totals.branches : totals.zones} Icon={MapPin} />
+            <StatTile title="Conferences" value={totals.conferences} Icon={Building2} />
           </div>
 
           {/* Primary Bar Chart */}
-          <Card className="premium-card-hover mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base sm:text-lg font-display">{primaryTitle[mode]}</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">{primaryDesc[mode]}</CardDescription>
-            </CardHeader>
-            <CardContent className="px-2 sm:px-6">
-              {primaryStats.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-[260px] sm:h-[320px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={primaryStats} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                      <defs>
-                        <linearGradient id="primaryGradient" x1="0" x2="0" y1="0" y2="1">
-                          <stop offset="0%" stopColor="hsl(142, 60%, 45%)" stopOpacity={0.98} />
-                          <stop offset="100%" stopColor="hsl(142, 60%, 35%)" stopOpacity={0.86} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={70} />
-                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="members" fill="url(#primaryGradient)" radius={[8, 8, 0, 0]} animationDuration={900} name="Members" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <p className="text-muted-foreground text-sm py-8 text-center">No data available</p>
-              )}
-            </CardContent>
-          </Card>
+          <GlassCard className="mb-6">
+            <div className="mb-3">
+              <h2 className="text-base sm:text-lg font-display font-semibold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">{primaryTitle[mode]}</h2>
+              <p className="text-xs sm:text-sm text-white/70">{primaryDesc[mode]}</p>
+            </div>
+            {primaryStats.length > 0 ? (
+              <ChartContainer config={chartConfig} className="h-[260px] sm:h-[320px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={primaryStats} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="primaryGradient" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stopColor="rgba(255,255,255,0.95)" stopOpacity={0.98} />
+                        <stop offset="100%" stopColor="rgba(186,230,253,0.55)" stopOpacity={0.85} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="rgba(255,255,255,0.12)" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.85)' }} axisLine={{ stroke: 'rgba(255,255,255,0.25)' }} tickLine={false} interval={0} angle={-20} textAnchor="end" height={70} />
+                    <YAxis tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.85)' }} axisLine={{ stroke: 'rgba(255,255,255,0.25)' }} tickLine={false} allowDecimals={false} />
+                    <ChartTooltip content={<ChartTooltipContent />} wrapperStyle={{ outline: 'none' }} contentStyle={tooltipContentStyle} />
+                    <Bar dataKey="members" fill="url(#primaryGradient)" radius={[8, 8, 0, 0]} animationDuration={900} name="Members" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            ) : (
+              <p className="text-white/70 text-sm py-8 text-center">No data available</p>
+            )}
+          </GlassCard>
 
           {/* Distribution Pie */}
-          <Card className="premium-card-hover">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base sm:text-lg font-display">Distribution</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">Share of members across your scope</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {primaryStats.length > 0 ? (
-                <ChartContainer config={chartConfig} className="h-[280px] w-full">
-                  <PieChart>
-                    <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                    <Pie
-                      data={primaryStats}
-                      dataKey="members"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label={({ name, members }) => `${name}: ${members}`}
-                      labelLine={false}
-                    >
-                      {primaryStats.map((_, i) => (
-                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ChartContainer>
-              ) : (
-                <p className="text-muted-foreground text-sm py-8 text-center">No data</p>
-              )}
-            </CardContent>
-          </Card>
+          <GlassCard>
+            <div className="mb-3">
+              <h2 className="text-base sm:text-lg font-display font-semibold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">Distribution</h2>
+              <p className="text-xs sm:text-sm text-white/70">Share of members across your scope</p>
+            </div>
+            {primaryStats.length > 0 ? (
+              <ChartContainer config={chartConfig} className="h-[280px] w-full">
+                <PieChart>
+                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} contentStyle={tooltipContentStyle} />
+                  <Pie
+                    data={primaryStats}
+                    dataKey="members"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    stroke="rgba(255,255,255,0.35)"
+                    label={({ name, members }) => `${name}: ${members}`}
+                    labelLine={false}
+                  >
+                    {primaryStats.map((_, i) => (
+                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            ) : (
+              <p className="text-white/70 text-sm py-8 text-center">No data</p>
+            )}
+          </GlassCard>
         </>
       )}
     </DashboardLayout>

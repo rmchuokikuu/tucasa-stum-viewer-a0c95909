@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/glass';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -323,28 +323,28 @@ export default function Dashboard() {
       </section>
 
       {myMembership && (
-        <Card className="premium-card border border-white/30 shadow-2xl mb-6">
-              <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2">
-                <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display text-white">
-                  <UserCircle className="h-5 w-5 text-gold-light" /> My Membership Details
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline" size="sm" className="gap-1 bg-white/10 border-white/30 text-white hover:bg-white/20"
-                    onClick={() => {
-                      setEditForm({
-                        full_name: myMembership.full_name || '',
-                        phone: myMembership.phone || '',
-                        institution: myMembership.institution || '',
-                      });
-                      setEditOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </Button>
-                </div>
-              </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        <GlassCard className="mb-6">
+          <div className="pb-2 flex flex-row items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2 text-base sm:text-lg font-display text-white">
+              <UserCircle className="h-5 w-5 text-gold-light" /> My Membership Details
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline" size="sm" className="gap-1 bg-white/10 border-white/30 text-white hover:bg-white/20"
+                onClick={() => {
+                  setEditForm({
+                    full_name: myMembership.full_name || '',
+                    phone: myMembership.phone || '',
+                    institution: myMembership.institution || '',
+                  });
+                  setEditOpen(true);
+                }}
+              >
+                <Pencil className="h-3.5 w-3.5" /> Edit
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
             <div><span className="text-white/70">Name:</span> <span className="font-medium text-white">{myMembership.full_name}</span></div>
             <div><span className="text-white/70">Status:</span> <span className="font-medium text-white">{myMembership.is_active ? 'Active' : 'Inactive'}</span></div>
             {myMembership.phone && <div><span className="text-white/70">Phone:</span> <span className="text-white">{myMembership.phone}</span></div>}
@@ -353,8 +353,8 @@ export default function Dashboard() {
             {myMembership.conference_name && <div><span className="text-white/70">Conference:</span> <span className="text-white">{myMembership.conference_name}</span></div>}
             {myMembership.zone_name && <div><span className="text-white/70">Zone:</span> <span className="text-white">{myMembership.zone_name}</span></div>}
             {myMembership.branch_name && <div><span className="text-white/70">Branch:</span> <span className="text-white">{myMembership.branch_name}</span></div>}
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
       )}
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -407,15 +407,15 @@ export default function Dashboard() {
       </Dialog>
 
       {isPlainMember && !myMembership && (
-        <Card className="border-dashed premium-card border-white/30">
-          <CardContent className="py-10 text-center px-4">
+        <GlassCard className="border-dashed">
+          <div className="py-10 text-center px-4">
             <Users className="h-10 w-10 mx-auto text-white/40 mb-4" />
             <h3 className="font-display text-lg mb-2 text-white">Your details are not available</h3>
             <p className="text-white/70 text-sm max-w-md mx-auto">
               Contact your branch leader.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
       )}
     </DashboardLayout>
   );
