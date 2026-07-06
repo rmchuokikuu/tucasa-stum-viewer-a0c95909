@@ -52,7 +52,7 @@ export default function Dashboard() {
   const [dashboardReady, setDashboardReady] = useState(false);
   const [bgId] = useState<string>(getStoredHeroBg());
   const [avatar, setAvatar] = useState<string | null>(user ? getStoredAvatar(user.id) : null);
-  const [activeModule, setActiveModule] = useState<{ title: string; to: string } | null>(null);
+  
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '', institution: '' });
   const [savingProfile, setSavingProfile] = useState(false);
