@@ -265,8 +265,8 @@ export default function Hierarchy() {
         {showUnionsTab && (
         <TabsContent value="unions">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{unions.length} union{unions.length !== 1 ? 's' : ''}</p>
-            {canAddUnion && <Button size="sm" onClick={() => openAdd('union')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{unions.length} union{unions.length !== 1 ? 's' : ''}</p>
+            {canAddUnion && <GlassButton size="sm" onClick={() => openAdd('union')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           {/* Mobile */}
           <div className="md:hidden">
@@ -275,13 +275,13 @@ export default function Hierarchy() {
             ))}
           </div>
           {/* Desktop */}
-          <Card className="hidden md:block premium-card border border-white/30">
-            <CardContent className="p-0">
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-b border-white/20"><TableHead className="text-white/90">Name</TableHead><TableHead className="text-white/90">Description</TableHead>{canAddUnion && <TableHead className="text-right text-white/90">Actions</TableHead>}</TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/15 hover:bg-transparent"><TableHead className="text-white/85">Name</TableHead><TableHead className="text-white/85">Description</TableHead>{canAddUnion && <TableHead className="text-right text-white/85">Actions</TableHead>}</TableRow></TableHeader>
                 <TableBody>
                   {unions.map(u => (
-                    <TableRow key={u.id} className="border-b border-white/10 hover:bg-white/5">
+                    <TableRow key={u.id} className="border-white/10 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{u.name}</TableCell>
                       <TableCell className="text-white/70">{u.description || '—'}</TableCell>
                       {canAddUnion && <TableCell className="text-right"><Button variant="ghost" size="icon" className="text-white/70 hover:bg-white/10" onClick={() => handleDelete('unions', u.id)}><Trash2 className="h-4 w-4 text-red-400" /></Button></TableCell>}
@@ -289,8 +289,8 @@ export default function Hierarchy() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
         )}
 
