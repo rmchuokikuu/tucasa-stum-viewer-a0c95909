@@ -1,19 +1,54 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Download, FileText, FileSpreadsheet, FileType } from 'lucide-react';
-import { exportCSV, exportExcel, exportPDF, type ExportRow } from '@/lib/exports';
+import {
+  exportCSV,
+  exportExcel,
+  exportPDF,
+  exportLeaderReportPDF,
+  exportLeaderReportExcel,
+  type ExportRow,
+  type LeaderReportData,
+} from '@/lib/exports';
 
-export function ExportMenu({ rows, filename, title }: { rows: ExportRow[]; filename: string; title: string }) {
-  const disabled = rows.length === 0;
-  
+interface ExportMenuProps {
+  rows: ExportRow[];
+  filename: string;
+  title: string;
+  /**
+   * If provided, PDF and Excel exports produce the richer leader report
+   * (summary counts + members grouped by sub-level). CSV still uses `rows`.
+   */
+  leaderReport?: LeaderReportData | null;
+}
+
+export function ExportMenu({ rows, filename, title, leaderReport }: ExportMenuProps) {
+  const disabled = rows.length === 0 && !leaderReport;
+
   const handlePDFExport = async () => {
     try {
-      await exportPDF(rows, filename, title);
+      if (leaderReport) {
+        await exportLeaderReportPDF(leaderReport, filename);
+      } else {
+        await exportPDF(rows, filename, title);
+      }
     } catch (error) {
       console.error('PDF export failed:', error);
     }
   };
-  
+
+  const handleExcelExport = () => {
+    try {
+      if (leaderReport) {
+        exportLeaderReportExcel(leaderReport, filename);
+      } else {
+        exportExcel(rows, filename);
+      }
+    } catch (error) {
+      console.error('Excel export failed:', error);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,10 +58,10 @@ export function ExportMenu({ rows, filename, title }: { rows: ExportRow[]; filen
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => exportCSV(rows, filename)}>
+        <DropdownMenuItem onClick={() => exportCSV(rows, filename)} disabled={rows.length === 0}>
           <FileText className="h-4 w-4 mr-2" /> CSV
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => exportExcel(rows, filename)}>
+        <DropdownMenuItem onClick={handleExcelExport}>
           <FileSpreadsheet className="h-4 w-4 mr-2" /> Excel
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handlePDFExport}>

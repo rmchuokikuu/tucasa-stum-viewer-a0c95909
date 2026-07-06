@@ -37,6 +37,19 @@ export function exportExcel(rows: ExportRow[], filename: string, sheetName = 'Sh
   XLSX.writeFile(wb, `${filename}.xlsx`);
 }
 
+// Sanitize a sheet name for Excel (max 31 chars, no []:*?/\)
+function safeSheetName(name: string, used: Set<string>): string {
+  let base = (name || 'Sheet').replace(/[\[\]:*?/\\]/g, ' ').trim().slice(0, 28) || 'Sheet';
+  let candidate = base;
+  let i = 2;
+  while (used.has(candidate.toLowerCase())) {
+    const suffix = ` (${i++})`;
+    candidate = base.slice(0, 28 - suffix.length) + suffix;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
 // TUCASA brand colors (from official SVG letterhead)
 const BRAND_PURPLE: [number, number, number] = [122, 45, 180];      // #7a2db4 side panel
 const BRAND_PURPLE_DARK: [number, number, number] = [107, 53, 165]; // #6b35a5 text
@@ -415,4 +428,58 @@ export async function exportLeaderReportPDF(
   }
 
   doc.save(`${filename}.pdf`);
+}
+
+export function exportLeaderReportExcel(data: LeaderReportData, filename: string) {
+  const wb = XLSX.utils.book_new();
+  const used = new Set<string>();
+
+  // Summary sheet
+  const summaryRows: (string | number)[][] = [
+    ['TUCASA Leader Report'],
+    [`${data.scopeLevel.charAt(0).toUpperCase() + data.scopeLevel.slice(1)}`, data.scopeName],
+    [`Generated`, new Date().toLocaleString()],
+    [],
+    ['Summary', 'Count'],
+  ];
+  if (data.counts.conferences != null) summaryRows.push(['Conferences', data.counts.conferences]);
+  if (data.counts.zones != null) summaryRows.push(['Zones', data.counts.zones]);
+  summaryRows.push(['Branches', data.counts.branches]);
+  summaryRows.push(['Total Members', data.counts.members]);
+  summaryRows.push(['Active Members', data.counts.active]);
+  summaryRows.push(['Inactive Members', Math.max(0, data.counts.members - data.counts.active)]);
+  summaryRows.push([]);
+  summaryRows.push([`Members by ${data.groupLabel}`, 'Count']);
+  data.groups.forEach(g => summaryRows.push([g.name, g.members.length]));
+
+  const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
+  summaryWs['!cols'] = [{ wch: 28 }, { wch: 22 }];
+  XLSX.utils.book_append_sheet(wb, summaryWs, safeSheetName('Summary', used));
+
+  // One sheet per group with the member list
+  const showBranchCol = data.scopeLevel !== 'branch';
+  const header = showBranchCol
+    ? ['#', 'Full Name', 'Branch', 'Phone', 'Institution', 'Status']
+    : ['#', 'Full Name', 'Phone', 'Institution', 'Status'];
+
+  data.groups.forEach(group => {
+    const rows: (string | number)[][] = [
+      [`${data.groupLabel}: ${group.name}`],
+      [`Members: ${group.members.length}`],
+      [],
+      header,
+      ...group.members.map((m, i) =>
+        showBranchCol
+          ? [i + 1, m.name, m.branch || '', m.phone || '', m.institution || '', m.active ? 'Active' : 'Inactive']
+          : [i + 1, m.name, m.phone || '', m.institution || '', m.active ? 'Active' : 'Inactive'],
+      ),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = showBranchCol
+      ? [{ wch: 5 }, { wch: 28 }, { wch: 22 }, { wch: 16 }, { wch: 26 }, { wch: 10 }]
+      : [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 26 }, { wch: 10 }];
+    XLSX.utils.book_append_sheet(wb, ws, safeSheetName(group.name, used));
+  });
+
+  XLSX.writeFile(wb, `${filename}.xlsx`);
 }

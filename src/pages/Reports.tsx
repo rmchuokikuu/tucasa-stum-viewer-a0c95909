@@ -4,9 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle, FileDown } from 'lucide-react';
+import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
-import { exportLeaderReportPDF, type LeaderReportData } from '@/lib/exports';
+import type { LeaderReportData } from '@/lib/exports';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
@@ -337,28 +337,12 @@ export default function Reports() {
               <ArrowLeft className="h-4 w-4" />
             </GlassButton>
             {mode !== 'personal' && (
-              <>
-                {leaderReport && (
-                  <GlassButton
-                    size="sm"
-                    className="gap-1"
-                    onClick={() =>
-                      exportLeaderReportPDF(
-                        leaderReport,
-                        `tucasa-${leaderReport.scopeLevel}-leader-report`,
-                      ).catch(err => console.error('Leader PDF export failed:', err))
-                    }
-                  >
-                    <FileDown className="h-4 w-4" />
-                    <span className="hidden sm:inline">My Leader Report</span>
-                  </GlassButton>
-                )}
-                <ExportMenu
-                  rows={hierarchyRows}
-                  filename="tucasa-hierarchy-report"
-                  title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
-                />
-              </>
+              <ExportMenu
+                rows={hierarchyRows}
+                filename={leaderReport ? `tucasa-${leaderReport.scopeLevel}-leader-report` : 'tucasa-hierarchy-report'}
+                title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
+                leaderReport={leaderReport}
+              />
             )}
           </div>
         </div>
