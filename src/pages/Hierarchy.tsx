@@ -305,13 +305,13 @@ export default function Hierarchy() {
               <HierarchyCard key={c.id} item={c} fields={[{ label: 'Union', value: unionMap.get(c.union_id) || '—' }, { label: 'Description', value: c.description || '—' }]} canDelete={canAddConference} onDelete={() => handleDelete('conferences', c.id)} />
             ))}
           </div>
-          <Card className="hidden md:block premium-card border border-white/30">
-            <CardContent className="p-0">
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-b border-white/20"><TableHead className="text-white/90">Name</TableHead><TableHead className="text-white/90">Union</TableHead><TableHead className="text-white/90">Description</TableHead>{canAddConference && <TableHead className="text-right text-white/90">Actions</TableHead>}</TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/15 hover:bg-transparent"><TableHead className="text-white/85">Name</TableHead><TableHead className="text-white/85">Union</TableHead><TableHead className="text-white/85">Description</TableHead>{canAddConference && <TableHead className="text-right text-white/85">Actions</TableHead>}</TableRow></TableHeader>
                 <TableBody>
                   {visibleConferences.map(c => (
-                    <TableRow key={c.id} className="border-b border-white/10 hover:bg-white/5">
+                    <TableRow key={c.id} className="border-white/10 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{c.name}</TableCell>
                       <TableCell className="text-white/70">{unionMap.get(c.union_id) || '—'}</TableCell>
                       <TableCell className="text-white/70">{c.description || '—'}</TableCell>
@@ -320,8 +320,8 @@ export default function Hierarchy() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
         )}
 
