@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Trash2, Building2, MapPin, GitBranch, Globe, Network, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
-import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton } from '@/components/glass';
+import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton, GlassItemButton } from '@/components/glass';
 import { computeScope } from '@/lib/scope';
 
 function HierarchyCard({ item, fields, canDelete, onDelete }: {
@@ -215,38 +215,40 @@ export default function Hierarchy() {
       </GlassPanel>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Add {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Name *</Label>
-              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
-            </div>
-            {dialogType === 'branch' && (
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg bg-transparent border-0 shadow-none p-0">
+          <GlassPanel title={`Add ${dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}`}>
+            <DialogHeader className="sr-only">
+              <DialogTitle>Add {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Institution</Label>
-                <Input value={form.institution} onChange={e => setForm(f => ({ ...f, institution: e.target.value }))} />
+                <Label className="text-white/90">Name *</Label>
+                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="bg-white/10 border-white/20 text-white placeholder:text-white/60" />
               </div>
-            )}
-            {dialogType !== 'union' && (
               <div className="space-y-2">
-                <Label>{parentLabel()} *</Label>
-                <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder={`Select ${parentLabel()}`} /></SelectTrigger>
-                  <SelectContent>
-                    {parentOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label className="text-white/90">Description</Label>
+                <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="bg-white/10 border-white/20 text-white placeholder:text-white/60" />
               </div>
-            )}
-            <Button type="submit" className="w-full">Create</Button>
-          </form>
+              {dialogType === 'branch' && (
+                <div className="space-y-2">
+                  <Label className="text-white/90">Institution</Label>
+                  <Input value={form.institution} onChange={e => setForm(f => ({ ...f, institution: e.target.value }))} className="bg-white/10 border-white/20 text-white placeholder:text-white/60" />
+                </div>
+              )}
+              {dialogType !== 'union' && (
+                <div className="space-y-2">
+                  <Label className="text-white/90">{parentLabel()} *</Label>
+                  <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder={`Select ${parentLabel()}`} /></SelectTrigger>
+                    <SelectContent>
+                      {parentOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <GlassButton type="submit" className="w-full">Create</GlassButton>
+            </form>
+          </GlassPanel>
         </DialogContent>
       </Dialog>
 
@@ -263,8 +265,8 @@ export default function Hierarchy() {
         {showUnionsTab && (
         <TabsContent value="unions">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{unions.length} union{unions.length !== 1 ? 's' : ''}</p>
-            {canAddUnion && <Button size="sm" onClick={() => openAdd('union')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{unions.length} union{unions.length !== 1 ? 's' : ''}</p>
+            {canAddUnion && <GlassButton size="sm" onClick={() => openAdd('union')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           {/* Mobile */}
           <div className="md:hidden">
@@ -273,13 +275,13 @@ export default function Hierarchy() {
             ))}
           </div>
           {/* Desktop */}
-          <Card className="hidden md:block premium-card border border-white/30">
-            <CardContent className="p-0">
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-b border-white/20"><TableHead className="text-white/90">Name</TableHead><TableHead className="text-white/90">Description</TableHead>{canAddUnion && <TableHead className="text-right text-white/90">Actions</TableHead>}</TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/15 hover:bg-transparent"><TableHead className="text-white/85">Name</TableHead><TableHead className="text-white/85">Description</TableHead>{canAddUnion && <TableHead className="text-right text-white/85">Actions</TableHead>}</TableRow></TableHeader>
                 <TableBody>
                   {unions.map(u => (
-                    <TableRow key={u.id} className="border-b border-white/10 hover:bg-white/5">
+                    <TableRow key={u.id} className="border-white/10 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{u.name}</TableCell>
                       <TableCell className="text-white/70">{u.description || '—'}</TableCell>
                       {canAddUnion && <TableCell className="text-right"><Button variant="ghost" size="icon" className="text-white/70 hover:bg-white/10" onClick={() => handleDelete('unions', u.id)}><Trash2 className="h-4 w-4 text-red-400" /></Button></TableCell>}
@@ -287,29 +289,29 @@ export default function Hierarchy() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
         )}
 
         {showConferencesTab && (
         <TabsContent value="conferences">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{visibleConferences.length} conference{visibleConferences.length !== 1 ? 's' : ''}</p>
-            {canAddConference && <Button size="sm" onClick={() => openAdd('conference')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{visibleConferences.length} conference{visibleConferences.length !== 1 ? 's' : ''}</p>
+            {canAddConference && <GlassButton size="sm" onClick={() => openAdd('conference')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           <div className="md:hidden">
             {visibleConferences.map(c => (
               <HierarchyCard key={c.id} item={c} fields={[{ label: 'Union', value: unionMap.get(c.union_id) || '—' }, { label: 'Description', value: c.description || '—' }]} canDelete={canAddConference} onDelete={() => handleDelete('conferences', c.id)} />
             ))}
           </div>
-          <Card className="hidden md:block premium-card border border-white/30">
-            <CardContent className="p-0">
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-b border-white/20"><TableHead className="text-white/90">Name</TableHead><TableHead className="text-white/90">Union</TableHead><TableHead className="text-white/90">Description</TableHead>{canAddConference && <TableHead className="text-right text-white/90">Actions</TableHead>}</TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/15 hover:bg-transparent"><TableHead className="text-white/85">Name</TableHead><TableHead className="text-white/85">Union</TableHead><TableHead className="text-white/85">Description</TableHead>{canAddConference && <TableHead className="text-right text-white/85">Actions</TableHead>}</TableRow></TableHeader>
                 <TableBody>
                   {visibleConferences.map(c => (
-                    <TableRow key={c.id} className="border-b border-white/10 hover:bg-white/5">
+                    <TableRow key={c.id} className="border-white/10 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{c.name}</TableCell>
                       <TableCell className="text-white/70">{unionMap.get(c.union_id) || '—'}</TableCell>
                       <TableCell className="text-white/70">{c.description || '—'}</TableCell>
@@ -318,29 +320,29 @@ export default function Hierarchy() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
         )}
 
         {showZonesTab && (
         <TabsContent value="zones">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{visibleZones.length} zone{visibleZones.length !== 1 ? 's' : ''}</p>
-            {canAddZone && <Button size="sm" onClick={() => openAdd('zone')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{visibleZones.length} zone{visibleZones.length !== 1 ? 's' : ''}</p>
+            {canAddZone && <GlassButton size="sm" onClick={() => openAdd('zone')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           <div className="md:hidden">
             {visibleZones.map(z => (
               <HierarchyCard key={z.id} item={z} fields={[{ label: 'Conference', value: confMap.get(z.conference_id) || '—' }, { label: 'Description', value: z.description || '—' }]} canDelete={canAddZone} onDelete={() => handleDelete('zones', z.id)} />
             ))}
           </div>
-          <Card className="hidden md:block premium-card border border-white/30">
-            <CardContent className="p-0">
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-b border-white/20"><TableHead className="text-white/90">Name</TableHead><TableHead className="text-white/90">Conference</TableHead><TableHead className="text-white/90">Description</TableHead>{canAddZone && <TableHead className="text-right text-white/90">Actions</TableHead>}</TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/15 hover:bg-transparent"><TableHead className="text-white/85">Name</TableHead><TableHead className="text-white/85">Conference</TableHead><TableHead className="text-white/85">Description</TableHead>{canAddZone && <TableHead className="text-right text-white/85">Actions</TableHead>}</TableRow></TableHeader>
                 <TableBody>
                   {visibleZones.map(z => (
-                    <TableRow key={z.id} className="border-b border-white/10 hover:bg-white/5">
+                    <TableRow key={z.id} className="border-white/10 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{z.name}</TableCell>
                       <TableCell className="text-white/70">{confMap.get(z.conference_id) || '—'}</TableCell>
                       <TableCell className="text-white/70">{z.description || '—'}</TableCell>
@@ -349,29 +351,29 @@ export default function Hierarchy() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
         )}
 
         {showBranchesTab && (
         <TabsContent value="branches">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{visibleBranches.length} branch{visibleBranches.length !== 1 ? 'es' : ''}</p>
-            {canAddBranch && <Button size="sm" onClick={() => openAdd('branch')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{visibleBranches.length} branch{visibleBranches.length !== 1 ? 'es' : ''}</p>
+            {canAddBranch && <GlassButton size="sm" onClick={() => openAdd('branch')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           <div className="md:hidden">
             {visibleBranches.map(b => (
               <HierarchyCard key={b.id} item={b} fields={[{ label: 'Zone', value: zoneMap.get(b.zone_id) || '—' }, { label: 'Institution', value: b.institution || '—' }]} canDelete={canAddBranch} onDelete={() => handleDelete('branches', b.id)} />
             ))}
           </div>
-          <Card className="hidden md:block premium-card border border-white/30">
-            <CardContent className="p-0">
+          <GlassCard className="hidden md:block !p-0 overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-b border-white/20"><TableHead className="text-white/90">Name</TableHead><TableHead className="text-white/90">Zone</TableHead><TableHead className="text-white/90">Institution</TableHead>{canAddBranch && <TableHead className="text-right text-white/90">Actions</TableHead>}</TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/15 hover:bg-transparent"><TableHead className="text-white/85">Name</TableHead><TableHead className="text-white/85">Zone</TableHead><TableHead className="text-white/85">Institution</TableHead>{canAddBranch && <TableHead className="text-right text-white/85">Actions</TableHead>}</TableRow></TableHeader>
                 <TableBody>
                   {visibleBranches.map(b => (
-                    <TableRow key={b.id} className="border-b border-white/10 hover:bg-white/5">
+                    <TableRow key={b.id} className="border-white/10 hover:bg-white/5">
                       <TableCell className="font-medium text-white">{b.name}</TableCell>
                       <TableCell className="text-white/70">{zoneMap.get(b.zone_id) || '—'}</TableCell>
                       <TableCell className="text-white/70">{b.institution || '—'}</TableCell>
@@ -380,8 +382,8 @@ export default function Hierarchy() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </TabsContent>
         )}
       </Tabs>
@@ -400,39 +402,27 @@ export default function Hierarchy() {
                   <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
                     {overlay.level === 'conferences' ? (
                       visibleConferences.map(c => (
-                        <button key={c.id} onClick={() => openOverlayZones(c)} className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-white break-words">{c.name}</h3>
-                            <p className="text-xs text-white/70">{c.description || 'Conference'}</p>
-                          </div>
-                        </button>
+                        <GlassItemButton key={c.id} onClick={() => openOverlayZones(c)} title={c.name} subtitle={c.description || 'Conference'} />
                       ))
                     ) : overlay.level === 'zones' ? (
                       visibleZones.filter(z => z.conference_id === overlay.conference.id).map(z => (
-                        <button key={z.id} onClick={() => openOverlayBranches(z)} className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-white break-words">{z.name}</h3>
-                            <p className="text-xs text-white/70">{z.description || 'Zone'}</p>
-                          </div>
-                        </button>
+                        <GlassItemButton key={z.id} onClick={() => openOverlayBranches(z)} title={z.name} subtitle={z.description || 'Zone'} />
                       ))
                     ) : (
                       visibleBranches.filter(b => b.zone_id === overlay.zone.id).map(b => (
-                        <div key={b.id} className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
-                            {b.institution && <p className="text-xs text-white/70 break-words">{b.institution}</p>}
-                          </div>
-                        </div>
+                        <GlassCard key={b.id} variant="interactive" className="!p-3">
+                          <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
+                          {b.institution && <p className="text-xs text-white/70 break-words">{b.institution}</p>}
+                        </GlassCard>
                       ))
                     )}
                   </div>
                 </GlassScrollContainer>
                 {overlay.level !== 'conferences' && (
                   <div className="mt-4 flex gap-2">
-                    <Button variant="outline" size="sm" onClick={backOverlay} className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                    <GlassButton size="sm" onClick={backOverlay}>
                       <ArrowLeft className="h-4 w-4 mr-1" /> Back
-                    </Button>
+                    </GlassButton>
                   </div>
                 )}
               </GlassPanel>
