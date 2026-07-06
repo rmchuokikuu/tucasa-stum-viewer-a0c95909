@@ -297,8 +297,8 @@ export default function Hierarchy() {
         {showConferencesTab && (
         <TabsContent value="conferences">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{visibleConferences.length} conference{visibleConferences.length !== 1 ? 's' : ''}</p>
-            {canAddConference && <Button size="sm" onClick={() => openAdd('conference')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{visibleConferences.length} conference{visibleConferences.length !== 1 ? 's' : ''}</p>
+            {canAddConference && <GlassButton size="sm" onClick={() => openAdd('conference')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           <div className="md:hidden">
             {visibleConferences.map(c => (
