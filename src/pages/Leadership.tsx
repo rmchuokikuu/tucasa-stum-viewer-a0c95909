@@ -283,22 +283,19 @@ export default function Leadership() {
         title="Leadership"
         description="Assign and manage leadership roles across TUCASA hierarchy levels."
       />
-      <div className="premium-card p-5 mb-6 border border-white/10 shadow-2xl">
-        <div className="page-header mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="page-title text-2xl sm:text-3xl">Leadership</h1>
-            <p className="page-description text-sm">Manage leaders across all organizational levels.</p>
-          </div>
+      <GlassPanel subtitle="Team" title="Leadership" className="mb-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <p className="text-sm text-white/80">Manage leaders across all organizational levels.</p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
+            <GlassButton size="icon" onClick={() => navigate('/dashboard')} className="h-10 w-10 rounded-full" aria-label="Back to dashboard">
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={openOverlayConferences} className="h-10 w-10 rounded-full">
+            </GlassButton>
+            <GlassButton size="icon" onClick={openOverlayConferences} className="h-10 w-10 rounded-full" aria-label="Browse conferences">
               <Network className="h-4 w-4" />
-            </Button>
+            </GlassButton>
           </div>
         </div>
-      </div>
+      </GlassPanel>
 
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-muted-foreground">{leaders.length} leader{leaders.length !== 1 ? 's' : ''}</p>
