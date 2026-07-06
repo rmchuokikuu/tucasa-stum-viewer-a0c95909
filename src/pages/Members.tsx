@@ -574,50 +574,48 @@ export default function Members() {
           {visibleMembers.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No members in this branch.</p>
           ) : (
-            <Card className="premium-card border border-white/15 shadow-2xl">
-              <CardContent className="p-0">
-                <div className="md:hidden space-y-3 p-4">
-                  {visibleMembers.map(m => (
-                    <MemberCard key={m.id} member={m} canEdit={canEdit} canDelete={canDelete} onEdit={openEdit} onDelete={handleDelete} />
-                  ))}
-                </div>
-                <div className="hidden md:block overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead>Institution</TableHead>
-                        <TableHead>Status</TableHead>
-                        {(canEdit || canDelete) && <TableHead className="text-right">Actions</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {visibleMembers.map(m => (
-                        <TableRow key={m.id}>
-                          <TableCell className="font-medium">{m.full_name}</TableCell>
-                          <TableCell>{m.phone || '—'}</TableCell>
-                          <TableCell>{m.institution || '—'}</TableCell>
-                          <TableCell>
-                            <Badge variant={m.is_active ? 'default' : 'secondary'}>
-                              {m.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
+            <GlassCard className="!p-0 overflow-hidden">
+              <div className="md:hidden space-y-3 p-4">
+                {visibleMembers.map(m => (
+                  <MemberCard key={m.id} member={m} canEdit={canEdit} canDelete={canDelete} onEdit={openEdit} onDelete={handleDelete} />
+                ))}
+              </div>
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/15 hover:bg-transparent">
+                      <TableHead className="text-white/85">Name</TableHead>
+                      <TableHead className="text-white/85">Phone</TableHead>
+                      <TableHead className="text-white/85">Institution</TableHead>
+                      <TableHead className="text-white/85">Status</TableHead>
+                      {(canEdit || canDelete) && <TableHead className="text-right text-white/85">Actions</TableHead>}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {visibleMembers.map(m => (
+                      <TableRow key={m.id} className="border-white/10 hover:bg-white/5">
+                        <TableCell className="font-medium text-white">{m.full_name}</TableCell>
+                        <TableCell className="text-white/85">{m.phone || '—'}</TableCell>
+                        <TableCell className="text-white/85">{m.institution || '—'}</TableCell>
+                        <TableCell>
+                          <Badge variant={m.is_active ? 'default' : 'secondary'}>
+                            {m.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        {(canEdit || canDelete) && (
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              {canEdit && <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={() => openEdit(m)}><Edit className="h-4 w-4" /></Button>}
+                              {canDelete && <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => handleDelete(m.id)}><Trash2 className="h-4 w-4 text-red-400" /></Button>}
+                            </div>
                           </TableCell>
-                          {(canEdit || canDelete) && (
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-1">
-                                {canEdit && <Button variant="ghost" size="icon" onClick={() => openEdit(m)}><Edit className="h-4 w-4" /></Button>}
-                                {canDelete && <Button variant="ghost" size="icon" onClick={() => handleDelete(m.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
-                              </div>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </GlassCard>
           )}
         </>
       )}
