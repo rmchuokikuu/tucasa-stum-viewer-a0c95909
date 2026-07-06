@@ -215,38 +215,40 @@ export default function Hierarchy() {
       </GlassPanel>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Add {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Name *</Label>
-              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
-            </div>
-            {dialogType === 'branch' && (
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg bg-transparent border-0 shadow-none p-0">
+          <GlassPanel title={`Add ${dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}`}>
+            <DialogHeader className="sr-only">
+              <DialogTitle>Add {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label>Institution</Label>
-                <Input value={form.institution} onChange={e => setForm(f => ({ ...f, institution: e.target.value }))} />
+                <Label className="text-white/90">Name *</Label>
+                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="bg-white/10 border-white/20 text-white placeholder:text-white/60" />
               </div>
-            )}
-            {dialogType !== 'union' && (
               <div className="space-y-2">
-                <Label>{parentLabel()} *</Label>
-                <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder={`Select ${parentLabel()}`} /></SelectTrigger>
-                  <SelectContent>
-                    {parentOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label className="text-white/90">Description</Label>
+                <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="bg-white/10 border-white/20 text-white placeholder:text-white/60" />
               </div>
-            )}
-            <Button type="submit" className="w-full">Create</Button>
-          </form>
+              {dialogType === 'branch' && (
+                <div className="space-y-2">
+                  <Label className="text-white/90">Institution</Label>
+                  <Input value={form.institution} onChange={e => setForm(f => ({ ...f, institution: e.target.value }))} className="bg-white/10 border-white/20 text-white placeholder:text-white/60" />
+                </div>
+              )}
+              {dialogType !== 'union' && (
+                <div className="space-y-2">
+                  <Label className="text-white/90">{parentLabel()} *</Label>
+                  <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder={`Select ${parentLabel()}`} /></SelectTrigger>
+                    <SelectContent>
+                      {parentOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <GlassButton type="submit" className="w-full">Create</GlassButton>
+            </form>
+          </GlassPanel>
         </DialogContent>
       </Dialog>
 
