@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -14,7 +14,7 @@ import { Plus, Trash2, Shield, Network, MapPin, GitBranch, ArrowLeft, Globe, Bui
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
-import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
+import { GlassCard, GlassPanel, GlassButton, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 
 interface LeaderRow {
   id: string;
@@ -83,7 +83,7 @@ export default function Leadership() {
 
   const [form, setForm] = useState({ user_id: '', role_id: '', hierarchy_level: '' as string, level_id: '' });
   const [openLevel, setOpenLevel] = useState<string | null>(null);
-  const [openScope, setOpenScope] = useState<string | null>(null);
+  
 
   // Scope derived from user roles + membership
   const isUnion = isUnionLeader || isSuperAdmin;
@@ -298,151 +298,142 @@ export default function Leadership() {
       </GlassPanel>
 
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-muted-foreground">{leaders.length} leader{leaders.length !== 1 ? 's' : ''}</p>
+        <p className="text-sm text-white/70">{leaders.length} leader{leaders.length !== 1 ? 's' : ''}</p>
         {canManage && (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1"><Plus className="h-4 w-4" /> <span className="hidden sm:inline">Assign Leader</span><span className="sm:hidden">Assign</span></Button>
+              <GlassButton size="sm" className="gap-1"><Plus className="h-4 w-4" /> <span className="hidden sm:inline">Assign Leader</span><span className="sm:hidden">Assign</span></GlassButton>
             </DialogTrigger>
-            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg">
-              <DialogHeader><DialogTitle>Assign Leader</DialogTitle></DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>User</Label>
-                  <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Select user" /></SelectTrigger>
-                    <SelectContent>
-                      {profiles.map(p => <SelectItem key={p.user_id} value={p.user_id}>{p.full_name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Role</Label>
-                  <Select value={form.role_id} onValueChange={v => setForm(f => ({ ...f, role_id: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
-                    <SelectContent>
-                      {roles.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Level</Label>
-                  <Select value={form.hierarchy_level} onValueChange={v => setForm(f => ({ ...f, hierarchy_level: v, level_id: '' }))}>
-                    <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
-                    <SelectContent>
-                      {allowedLevels.includes('union') && <SelectItem value="union">Union</SelectItem>}
-                      {allowedLevels.includes('conference') && <SelectItem value="conference">Conference</SelectItem>}
-                      {allowedLevels.includes('zone') && <SelectItem value="zone">Zone</SelectItem>}
-                      {allowedLevels.includes('branch') && <SelectItem value="branch">Branch</SelectItem>}
-                    </SelectContent>
-
-                  </Select>
-                </div>
-                {form.hierarchy_level && (
+            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg bg-transparent border-0 shadow-none p-0">
+              <GlassPanel title="Assign Leader">
+                <DialogHeader className="sr-only"><DialogTitle>Assign Leader</DialogTitle></DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Assign to</Label>
-                    <Select value={form.level_id} onValueChange={v => setForm(f => ({ ...f, level_id: v }))}>
-                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <Label className="text-white/90">User</Label>
+                    <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select user" /></SelectTrigger>
                       <SelectContent>
-                        {levelOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                        {profiles.map(p => <SelectItem key={p.user_id} value={p.user_id}>{p.full_name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
-                )}
-                <Button type="submit" className="w-full">Assign</Button>
-              </form>
+                  <div className="space-y-2">
+                    <Label className="text-white/90">Role</Label>
+                    <Select value={form.role_id} onValueChange={v => setForm(f => ({ ...f, role_id: v }))}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select role" /></SelectTrigger>
+                      <SelectContent>
+                        {roles.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/90">Level</Label>
+                    <Select value={form.hierarchy_level} onValueChange={v => setForm(f => ({ ...f, hierarchy_level: v, level_id: '' }))}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select level" /></SelectTrigger>
+                      <SelectContent>
+                        {allowedLevels.includes('union') && <SelectItem value="union">Union</SelectItem>}
+                        {allowedLevels.includes('conference') && <SelectItem value="conference">Conference</SelectItem>}
+                        {allowedLevels.includes('zone') && <SelectItem value="zone">Zone</SelectItem>}
+                        {allowedLevels.includes('branch') && <SelectItem value="branch">Branch</SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {form.hierarchy_level && (
+                    <div className="space-y-2">
+                      <Label className="text-white/90">Assign to</Label>
+                      <Select value={form.level_id} onValueChange={v => setForm(f => ({ ...f, level_id: v }))}>
+                        <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select..." /></SelectTrigger>
+                        <SelectContent>
+                          {levelOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <GlassButton type="submit" className="w-full">Assign</GlassButton>
+                </form>
+              </GlassPanel>
             </DialogContent>
           </Dialog>
         )}
       </div>
 
       {loading ? (
-        <p className="text-center text-muted-foreground py-8">Loading...</p>
+        <p className="text-center text-white/70 py-8">Loading...</p>
       ) : leaders.length === 0 ? (
-        <p className="text-center text-muted-foreground py-8">No leaders assigned yet.</p>
+        <p className="text-center text-white/70 py-8">No leaders assigned yet.</p>
       ) : (
         (() => {
-          const levelMeta: Record<string, { title: string; Icon: typeof Globe; accent: string }> = {
-            union:      { title: 'Union Leaders',      Icon: Globe,     accent: 'from-amber-500/20 to-yellow-300/20 text-amber-700' },
-            conference: { title: 'Conference Leaders', Icon: Building2, accent: 'from-sky-500/20 to-blue-300/20 text-sky-700' },
-            zone:       { title: 'Zone Leaders',       Icon: MapPin,    accent: 'from-violet-500/20 to-fuchsia-300/20 text-violet-700' },
-            branch:     { title: 'Branch Leaders',     Icon: GitBranch, accent: 'from-emerald-500/20 to-teal-300/20 text-emerald-700' },
+          const levelMeta: Record<string, { label: string; Icon: typeof Globe }> = {
+            union:      { label: 'Union',      Icon: Globe },
+            conference: { label: 'Conference', Icon: Building2 },
+            zone:       { label: 'Zone',       Icon: MapPin },
+            branch:     { label: 'Branch',     Icon: GitBranch },
           };
           const order: Array<'union'|'conference'|'zone'|'branch'> = ['union','conference','zone','branch'];
+          // Flatten into one entry per (level, level_name)
+          const groups: Array<{ key: string; lvl: 'union'|'conference'|'zone'|'branch'; scopeName: string; list: LeaderRow[] }> = [];
+          order.forEach(lvl => {
+            const rows = leaders.filter(l => l.hierarchy_level === lvl);
+            const byScope = new Map<string, LeaderRow[]>();
+            rows.forEach(r => {
+              const arr = byScope.get(r.level_name) || [];
+              arr.push(r);
+              byScope.set(r.level_name, arr);
+            });
+            [...byScope.entries()].forEach(([scopeName, list]) => {
+              groups.push({ key: `${lvl}::${scopeName}`, lvl, scopeName, list });
+            });
+          });
           return (
-            <div className="space-y-6">
-              {order.map(lvl => {
-                const rows = leaders.filter(l => l.hierarchy_level === lvl);
-                if (rows.length === 0) return null;
+            <div className="space-y-3">
+              {groups.map(({ key, lvl, scopeName, list }) => {
                 const meta = levelMeta[lvl];
-                // Group by level_name (specific conference/zone/branch)
-                const byScope = new Map<string, LeaderRow[]>();
-                rows.forEach(r => {
-                  const arr = byScope.get(r.level_name) || [];
-                  arr.push(r);
-                  byScope.set(r.level_name, arr);
-                });
                 return (
-                  <Collapsible key={lvl} asChild open={openLevel === lvl} onOpenChange={(o) => { setOpenLevel(o ? lvl : null); setOpenScope(null); }}>
-                    <section className="premium-card border border-white/10 p-3 sm:p-4">
-                      <CollapsibleTrigger className="w-full group flex items-center gap-2 text-left">
-                        <div className={`h-9 w-9 rounded-2xl bg-gradient-to-br ${meta.accent} flex items-center justify-center shrink-0`}>
+                  <Collapsible key={key} asChild open={openLevel === key} onOpenChange={(o) => setOpenLevel(o ? key : null)}>
+                    <GlassCard variant="subtle" className="!p-0 overflow-hidden">
+                      <CollapsibleTrigger className="w-full group flex items-center gap-3 text-left p-3 sm:p-4">
+                        <div className="h-9 w-9 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-white">
                           <meta.Icon className="h-4 w-4" />
                         </div>
-                        <h2 className="font-display text-lg sm:text-xl font-semibold flex-1">{meta.title}</h2>
-                        <Badge variant="secondary">{rows.length}</Badge>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                        <div className="min-w-0 flex-1">
+                          <h2 className="font-display text-base sm:text-lg font-semibold text-white truncate">{scopeName}</h2>
+                          <p className="text-[11px] uppercase tracking-[0.2em] text-white/60">{meta.label}</p>
+                        </div>
+                        <Badge variant="outline" className="bg-white/10 border-white/30 text-white">{list.length}</Badge>
+                        <ChevronDown className="h-4 w-4 text-white/70 transition-transform group-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="pt-4 space-y-3 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
-                        {[...byScope.entries()].map(([scopeName, list]) => {
-                          const scopeKey = `${lvl}::${scopeName}`;
-                          return (
-                          <Collapsible key={scopeName} asChild open={openScope === scopeKey} onOpenChange={(o) => setOpenScope(o ? scopeKey : null)}>
-                            <div className="rounded-xl border border-slate-200/70 bg-white/60">
-                              <CollapsibleTrigger className="w-full group flex items-center gap-2 p-3 text-left">
-                                <h3 className="text-sm font-semibold text-foreground/90 flex-1 truncate">{scopeName}</h3>
-                                <span className="text-xs text-muted-foreground">{list.length} leader{list.length !== 1 ? 's' : ''}</span>
-                                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="px-3 pb-3 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
-                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                  {list.map(l => (
-                                    <Card key={l.id} className="bg-white/80 border border-slate-200/70">
-                                      <CardContent className="p-3">
-                                        <div className="flex items-start justify-between gap-2">
-                                          <div className="min-w-0 flex-1">
-                                            <h4 className="font-medium text-sm truncate">{l.user_name}</h4>
-                                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                              <Badge variant="outline" className="gap-1 text-[10px]">
-                                                <Shield className="h-2.5 w-2.5" />{l.role_name}
-                                              </Badge>
-                                              <Badge variant={l.is_active ? 'default' : 'outline'} className="text-[10px]">
-                                                {l.is_active ? 'Active' : 'Inactive'}
-                                              </Badge>
-                                            </div>
-                                          </div>
-                                          {canManage && (
-                                            <div className="flex flex-col gap-1 shrink-0">
-                                              <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2" onClick={() => handleToggleActive(l.id, !l.is_active)}>
-                                                {l.is_active ? 'Deactivate' : 'Activate'}
-                                              </Button>
-                                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemove(l.id)}>
-                                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                              </Button>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  ))}
+                      <CollapsibleContent className="px-3 sm:px-4 pb-3 sm:pb-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                          {list.map(l => (
+                            <GlassCard key={l.id} variant="interactive" className="!p-3">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="font-medium text-sm truncate text-white">{l.user_name}</h4>
+                                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                                    <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
+                                      <Shield className="h-2.5 w-2.5" />{l.role_name}
+                                    </Badge>
+                                    <Badge variant="outline" className={`text-[10px] border-white/30 ${l.is_active ? 'bg-white/20 text-white' : 'bg-white/5 text-white/70'}`}>
+                                      {l.is_active ? 'Active' : 'Inactive'}
+                                    </Badge>
+                                  </div>
                                 </div>
-                              </CollapsibleContent>
-                            </div>
-                          </Collapsible>
-                          );
-                        })}
+                                {canManage && (
+                                  <div className="flex flex-col gap-1 shrink-0">
+                                    <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2 text-white hover:bg-white/10" onClick={() => handleToggleActive(l.id, !l.is_active)}>
+                                      {l.is_active ? 'Deactivate' : 'Activate'}
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/10" onClick={() => handleRemove(l.id)}>
+                                      <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </GlassCard>
+                          ))}
+                        </div>
                       </CollapsibleContent>
-                    </section>
+                    </GlassCard>
                   </Collapsible>
                 );
               })}
@@ -452,60 +443,35 @@ export default function Leadership() {
       )}
       {overlay && (
         <>
-          <div className="fixed inset-0 z-40 bg-slate-50/60 backdrop-blur-3xl" onClick={closeOverlay} />
-          <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-            <div className="w-full max-w-3xl">
-              <Card className="premium-card border border-white/20 bg-white/75 shadow-2xl backdrop-blur-2xl">
-                <CardContent className="p-5 rounded-[32px] shadow-inner shadow-slate-900/5">
-                  <div className="max-h-[calc(100vh-10rem)] overflow-y-auto rounded-[28px] border border-slate-200/60 bg-white/50 p-3 shadow-inner shadow-slate-900/5">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {overlay.level === 'conferences' ? (
-                        conferences.map(c => (
-                          <button key={c.id} onClick={() => openOverlayZones(c)} className="text-left group">
-                            <Card className="premium-card-hover bg-white/90 border border-slate-200/80 hover:border-slate-300 transition-colors">
-                              <CardContent className="p-4 flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-sky-200/70 to-blue-200/70 flex items-center justify-center shrink-0 text-sky-700 shadow-sm shadow-sky-400/10">
-                                  <MapPin className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-medium text-sm text-slate-950 truncate">{c.name}</h3>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </button>
-                        ))
-                      ) : overlay.level === 'zones' ? (
-                        zones.filter(z => z.conference_id === overlay.conference.id).map(z => (
-                          <button key={z.id} onClick={() => openOverlayBranches(z)} className="text-left group">
-                            <Card className="premium-card-hover bg-white/90 border border-slate-200/80 hover:border-slate-300 transition-colors">
-                              <CardContent className="p-4 flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-200/70 to-fuchsia-200/70 flex items-center justify-center shrink-0 text-violet-700 shadow-sm shadow-violet-400/10">
-                                  <GitBranch className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-medium text-sm text-slate-950 truncate">{z.name}</h3>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </button>
-                        ))
-                      ) : (
-                        branches.filter(b => b.zone_id === overlay.zone.id).map(b => (
-                          <div key={b.id} className="text-left group">
-                            <Card className="premium-card-hover bg-white/90 border border-slate-200/80 hover:border-slate-300 transition-colors">
-                              <CardContent className="p-4 flex items-center gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <h3 className="font-medium text-sm text-slate-950 truncate">{b.name}</h3>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        ))
-                      )}
-                    </div>
+          <GlassOverlay onClick={closeOverlay} />
+          <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-3 sm:px-4 animate-slide-down">
+            <div className="w-full max-w-3xl min-w-0">
+              <GlassPanel
+                title={`Browse ${overlay.level}`}
+                subtitle={overlay.level === 'conferences' ? 'Conferences' : overlay.level === 'zones' ? 'Zones' : 'Branches'}
+                showClose
+                onClose={closeOverlay}
+              >
+                <GlassScrollContainer>
+                  <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
+                    {overlay.level === 'conferences' ? (
+                      conferences.map(c => (
+                        <GlassItemButton key={c.id} onClick={() => openOverlayZones(c)} title={c.name} subtitle="Conference" />
+                      ))
+                    ) : overlay.level === 'zones' ? (
+                      zones.filter(z => z.conference_id === overlay.conference.id).map(z => (
+                        <GlassItemButton key={z.id} onClick={() => openOverlayBranches(z)} title={z.name} subtitle="Zone" />
+                      ))
+                    ) : (
+                      branches.filter(b => b.zone_id === overlay.zone.id).map(b => (
+                        <GlassCard key={b.id} variant="interactive" className="!p-3">
+                          <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
+                        </GlassCard>
+                      ))
+                    )}
                   </div>
-                </CardContent>
-              </Card>
+                </GlassScrollContainer>
+              </GlassPanel>
             </div>
           </div>
         </>
