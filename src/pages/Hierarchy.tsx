@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Trash2, Building2, MapPin, GitBranch, Globe, Network, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
-import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton } from '@/components/glass';
+import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton, GlassItemButton } from '@/components/glass';
 import { computeScope } from '@/lib/scope';
 
 function HierarchyCard({ item, fields, canDelete, onDelete }: {
