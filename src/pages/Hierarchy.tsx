@@ -328,8 +328,8 @@ export default function Hierarchy() {
         {showZonesTab && (
         <TabsContent value="zones">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{visibleZones.length} zone{visibleZones.length !== 1 ? 's' : ''}</p>
-            {canAddZone && <Button size="sm" onClick={() => openAdd('zone')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{visibleZones.length} zone{visibleZones.length !== 1 ? 's' : ''}</p>
+            {canAddZone && <GlassButton size="sm" onClick={() => openAdd('zone')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           <div className="md:hidden">
             {visibleZones.map(z => (
