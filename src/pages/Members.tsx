@@ -372,21 +372,17 @@ export default function Members() {
         title="Members"
         description="Manage member profiles, search across branches, and export membership data in TUCASA STUM."
       />
-      <div className="premium-card p-5 mb-6 border border-white/10 shadow-2xl">
-        <div className="page-header mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="page-title text-2xl sm:text-3xl">Members</h1>
-            <p className="page-description text-sm">Browse members by Conference → Zone → Branch.</p>
-          </div>
-          <Button
-            variant="outline"
+      <GlassPanel subtitle="Directory" title="Members" className="mb-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+          <p className="text-sm text-white/80">Browse members by Conference → Zone → Branch.</p>
+          <GlassButton
             size="icon"
             onClick={() => navigate('/dashboard')}
             className="h-10 w-10 rounded-full"
             aria-label="Back to dashboard"
           >
             <ArrowLeft className="h-4 w-4" />
-          </Button>
+          </GlassButton>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -395,7 +391,7 @@ export default function Members() {
           <StatCard title="Branches" value={totalBranches} icon={GitBranch} accent="from-violet-500 to-fuchsia-500" />
           <StatCard title="Members" value={totalMembers} icon={Users} accent="from-gold to-gold-light" />
         </div>
-      </div>
+      </GlassPanel>
 
       <Card className="premium-card border border-white/15 shadow-2xl p-4 mb-6">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
