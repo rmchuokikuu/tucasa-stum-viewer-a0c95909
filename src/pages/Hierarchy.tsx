@@ -402,39 +402,27 @@ export default function Hierarchy() {
                   <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
                     {overlay.level === 'conferences' ? (
                       visibleConferences.map(c => (
-                        <button key={c.id} onClick={() => openOverlayZones(c)} className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-white break-words">{c.name}</h3>
-                            <p className="text-xs text-white/70">{c.description || 'Conference'}</p>
-                          </div>
-                        </button>
+                        <GlassItemButton key={c.id} onClick={() => openOverlayZones(c)} title={c.name} subtitle={c.description || 'Conference'} />
                       ))
                     ) : overlay.level === 'zones' ? (
                       visibleZones.filter(z => z.conference_id === overlay.conference.id).map(z => (
-                        <button key={z.id} onClick={() => openOverlayBranches(z)} className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-white break-words">{z.name}</h3>
-                            <p className="text-xs text-white/70">{z.description || 'Zone'}</p>
-                          </div>
-                        </button>
+                        <GlassItemButton key={z.id} onClick={() => openOverlayBranches(z)} title={z.name} subtitle={z.description || 'Zone'} />
                       ))
                     ) : (
                       visibleBranches.filter(b => b.zone_id === overlay.zone.id).map(b => (
-                        <div key={b.id} className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
-                            {b.institution && <p className="text-xs text-white/70 break-words">{b.institution}</p>}
-                          </div>
-                        </div>
+                        <GlassCard key={b.id} variant="interactive" className="!p-3">
+                          <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
+                          {b.institution && <p className="text-xs text-white/70 break-words">{b.institution}</p>}
+                        </GlassCard>
                       ))
                     )}
                   </div>
                 </GlassScrollContainer>
                 {overlay.level !== 'conferences' && (
                   <div className="mt-4 flex gap-2">
-                    <Button variant="outline" size="sm" onClick={backOverlay} className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                    <GlassButton size="sm" onClick={backOverlay}>
                       <ArrowLeft className="h-4 w-4 mr-1" /> Back
-                    </Button>
+                    </GlassButton>
                   </div>
                 )}
               </GlassPanel>
