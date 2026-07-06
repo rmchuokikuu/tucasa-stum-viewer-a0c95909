@@ -37,26 +37,21 @@ function DrillCard({ icon: Icon, title, subtitle, count, onClick }: {
   onClick: () => void;
 }) {
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left group"
-    >
-      <Card className="premium-card-hover">
-        <CardContent className="p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <Icon className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm truncate">{title}</h3>
-            {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
-          </div>
-          <div className="text-right shrink-0">
-            <div className="text-lg font-semibold leading-none">{count}</div>
-            <div className="text-[10px] text-muted-foreground mt-1">members</div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-        </CardContent>
-      </Card>
+    <button onClick={onClick} className="w-full text-left group">
+      <GlassCard variant="interactive" className="!p-4 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-lg bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
+          <Icon className="h-5 w-5 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-sm truncate text-white">{title}</h3>
+          {subtitle && <p className="text-xs text-white/70 truncate">{subtitle}</p>}
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-lg font-semibold leading-none text-white">{count}</div>
+          <div className="text-[10px] text-white/70 mt-1">members</div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-white/60 group-hover:text-white transition-colors shrink-0" />
+      </GlassCard>
     </button>
   );
 }
@@ -69,46 +64,42 @@ function MemberCard({ member, canEdit, canDelete, onEdit, onDelete }: {
   onDelete: (id: string) => void;
 }) {
   return (
-    <Card className="premium-card-hover mb-3">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-sm truncate">{member.full_name}</h3>
-              <Badge variant={member.is_active ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-                {member.is_active ? 'Active' : 'Inactive'}
-              </Badge>
-            </div>
-            <div className="space-y-1 text-xs text-muted-foreground">
-              {member.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 shrink-0" /><span>{member.phone}</span></div>}
-              {member.institution && <div className="flex items-center gap-1.5"><Building className="h-3 w-3 shrink-0" /><span>{member.institution}</span></div>}
-            </div>
+    <GlassCard variant="interactive" className="mb-3 !p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-semibold text-sm truncate text-white">{member.full_name}</h3>
+            <Badge variant={member.is_active ? 'default' : 'secondary'} className="text-[10px] shrink-0">
+              {member.is_active ? 'Active' : 'Inactive'}
+            </Badge>
           </div>
-          {(canEdit || canDelete) && (
-            <div className="flex gap-1 shrink-0">
-              {canEdit && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(member)}><Edit className="h-3.5 w-3.5" /></Button>}
-              {canDelete && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDelete(member.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>}
-            </div>
-          )}
+          <div className="space-y-1 text-xs text-white/70">
+            {member.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 shrink-0" /><span>{member.phone}</span></div>}
+            {member.institution && <div className="flex items-center gap-1.5"><Building className="h-3 w-3 shrink-0" /><span>{member.institution}</span></div>}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+        {(canEdit || canDelete) && (
+          <div className="flex gap-1 shrink-0">
+            {canEdit && <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/10" onClick={() => onEdit(member)}><Edit className="h-3.5 w-3.5" /></Button>}
+            {canDelete && <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => onDelete(member.id)}><Trash2 className="h-3.5 w-3.5 text-red-400" /></Button>}
+          </div>
+        )}
+      </div>
+    </GlassCard>
   );
 }
 
 function StatCard({ title, value, icon: Icon, accent }: { title: string; value: number; icon: React.ComponentType<{ className?: string }>; accent: string }) {
   return (
-    <Card className="premium-card-hover">
-      <CardContent className="p-4 flex items-center gap-3">
-        <div className={`h-11 w-11 rounded-2xl bg-gradient-to-br ${accent} text-white flex items-center justify-center shadow-lg shadow-black/10`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[11px] tracking-[0.24em] uppercase text-muted-foreground">{title}</p>
-          <p className="mt-2 text-xl font-semibold text-foreground">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <GlassCard variant="subtle" className="!p-4 flex items-center gap-3">
+      <div className={`h-11 w-11 rounded-2xl bg-gradient-to-br ${accent} text-white flex items-center justify-center shadow-lg shadow-black/20 border border-white/25`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] tracking-[0.24em] uppercase text-white/70">{title}</p>
+        <p className="mt-1 text-xl font-semibold text-white">{value}</p>
+      </div>
+    </GlassCard>
   );
 }
 
