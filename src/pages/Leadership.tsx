@@ -83,7 +83,7 @@ export default function Leadership() {
 
   const [form, setForm] = useState({ user_id: '', role_id: '', hierarchy_level: '' as string, level_id: '' });
   const [openLevel, setOpenLevel] = useState<string | null>(null);
-  const [openScope, setOpenScope] = useState<string | null>(null);
+  
 
   // Scope derived from user roles + membership
   const isUnion = isUnionLeader || isSuperAdmin;
