@@ -384,12 +384,11 @@ export default function Members() {
         </div>
       </GlassPanel>
 
-      <Card className="premium-card border border-white/15 shadow-2xl p-4 mb-6">
+      <GlassCard variant="subtle" className="mb-6 !p-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-1 max-w-full sm:max-w-md">
             {view.level !== 'conferences' && (
-              <Button
-                variant="outline"
+              <GlassButton
                 size="icon"
                 onClick={() => {
                   setOverlay(null);
@@ -400,10 +399,10 @@ export default function Members() {
                 className="shrink-0"
               >
                 <ArrowLeft className="h-4 w-4" />
-              </Button>
+              </GlassButton>
             )}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
               <Input
                 placeholder={
                   view.level === 'conferences' ? 'Search conferences...' :
@@ -413,7 +412,7 @@ export default function Members() {
                 }
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/60"
               />
             </div>
           </div>
@@ -430,14 +429,14 @@ export default function Members() {
                 title={`Members — ${view.branch.name}`}
               />
               {canAdd && (
-                <Button onClick={() => openAddInBranch(view.branch.id)}>
+                <GlassButton onClick={() => openAddInBranch(view.branch.id)}>
                   <Plus className="h-4 w-4 mr-2" /> Add Member
-                </Button>
+                </GlassButton>
               )}
             </div>
           )}
         </div>
-      </Card>
+      </GlassCard>
 
       {overlay && (
         <>
