@@ -14,7 +14,7 @@ import { Plus, Trash2, Shield, Network, MapPin, GitBranch, ArrowLeft, Globe, Bui
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
-import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
+import { GlassCard, GlassPanel, GlassButton, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 
 interface LeaderRow {
   id: string;
