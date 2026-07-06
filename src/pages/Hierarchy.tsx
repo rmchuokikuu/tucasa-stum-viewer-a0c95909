@@ -359,8 +359,8 @@ export default function Hierarchy() {
         {showBranchesTab && (
         <TabsContent value="branches">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-muted-foreground">{visibleBranches.length} branch{visibleBranches.length !== 1 ? 'es' : ''}</p>
-            {canAddBranch && <Button size="sm" onClick={() => openAdd('branch')}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+            <p className="text-sm text-white/70">{visibleBranches.length} branch{visibleBranches.length !== 1 ? 'es' : ''}</p>
+            {canAddBranch && <GlassButton size="sm" onClick={() => openAdd('branch')}><Plus className="h-4 w-4 mr-1" /> Add</GlassButton>}
           </div>
           <div className="md:hidden">
             {visibleBranches.map(b => (
