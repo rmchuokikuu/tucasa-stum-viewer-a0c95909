@@ -37,6 +37,19 @@ export function exportExcel(rows: ExportRow[], filename: string, sheetName = 'Sh
   XLSX.writeFile(wb, `${filename}.xlsx`);
 }
 
+// Sanitize a sheet name for Excel (max 31 chars, no []:*?/\)
+function safeSheetName(name: string, used: Set<string>): string {
+  let base = (name || 'Sheet').replace(/[\[\]:*?/\\]/g, ' ').trim().slice(0, 28) || 'Sheet';
+  let candidate = base;
+  let i = 2;
+  while (used.has(candidate.toLowerCase())) {
+    const suffix = ` (${i++})`;
+    candidate = base.slice(0, 28 - suffix.length) + suffix;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+}
+
 // TUCASA brand colors (from official SVG letterhead)
 const BRAND_PURPLE: [number, number, number] = [122, 45, 180];      // #7a2db4 side panel
 const BRAND_PURPLE_DARK: [number, number, number] = [107, 53, 165]; // #6b35a5 text
