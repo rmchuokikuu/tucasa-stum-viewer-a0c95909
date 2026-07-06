@@ -35,17 +35,17 @@ function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
   onToggleActive: (id: string, next: boolean) => void;
 }) {
   return (
-    <Card className="mb-3">
+    <Card className="premium-card-hover border border-white/30 mb-3">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="font-medium text-sm truncate">{leader.user_name}</h3>
+            <h3 className="font-medium text-sm truncate text-white">{leader.user_name}</h3>
             {/* Email intentionally hidden in UI */}
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
-              <Badge variant="outline" className="gap-1 text-[10px]">
+              <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
                 <Shield className="h-2.5 w-2.5" />{leader.role_name}
               </Badge>
-              <Badge variant="secondary" className="text-[10px]">{leader.hierarchy_level}</Badge>
+              <Badge variant="secondary" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.hierarchy_level}</Badge>
               <Badge variant={leader.is_active ? 'default' : 'outline'} className="text-[10px]">
                 {leader.is_active ? 'Active' : 'Inactive'}
               </Badge>

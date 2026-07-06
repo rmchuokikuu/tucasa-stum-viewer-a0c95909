@@ -15,6 +15,7 @@ import { Plus, Search, Edit, Trash2, Mail, Phone, Building, ChevronRight, ArrowL
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { ExportMenu } from '@/components/ExportMenu';
+import { GlassCard, GlassButton, GlassPanel, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Member = Tables<'members'>;
@@ -453,101 +454,57 @@ export default function Members() {
 
       {overlay && (
         <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setOverlay(null)}
-            style={{
-              background:
-                "radial-gradient(1200px 700px at 10% -10%, rgba(96,165,250,0.5), transparent 60%)," +
-                "radial-gradient(900px 600px at 100% 0%, rgba(186,230,253,0.35), transparent 60%)," +
-                "radial-gradient(900px 700px at 50% 120%, rgba(59,130,246,0.45), transparent 60%)," +
-                "linear-gradient(180deg, #173A82 0%, #1E4AA0 50%, #173A82 100%)",
-            }}
-          />
-          <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-3 sm:px-4">
+          <GlassOverlay onClick={() => setOverlay(null)} />
+          <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-3 sm:px-4 animate-slide-down">
             <div className="w-full max-w-3xl min-w-0">
-              <div className="rounded-[30px] p-4 sm:p-6 bg-gradient-to-br from-white/25 via-white/12 to-white/5 border border-white/30 shadow-[0_32px_90px_-30px_rgba(2,8,23,0.75)] backdrop-blur-[32px] animate-slide-down overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                  <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-white/70">
-                      {overlay.level === 'zones' ? 'Choose zone' : 'Choose branch'}
-                    </p>
-                    <h2 className="mt-2 text-base sm:text-xl font-semibold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)] break-words">
-                      {overlay.level === 'zones'
-                        ? overlay.conference.name
-                        : `${overlay.zone.name} — ${overlay.conference.name}`}
-                    </h2>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {overlay.level === 'branches' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setOverlay({ level: 'zones', conference: overlay.conference })}
-                        className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white"
-                      >
-                        Back
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setOverlay(null)}
-                      className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white"
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="max-h-[calc(100vh-10rem)] overflow-y-auto overflow-x-hidden rounded-[24px] border border-white/20 bg-white/5 p-2 sm:p-3">
+              <GlassPanel
+                title={overlay.level === 'zones' ? overlay.conference.name : `${overlay.zone.name} — ${overlay.conference.name}`}
+                subtitle={overlay.level === 'zones' ? 'Choose zone' : 'Choose branch'}
+                showClose
+                onClose={() => setOverlay(null)}
+              >
+                <GlassScrollContainer>
                   <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
                     {overlay.level === 'zones' ? (
                       zones
                         .filter(z => z.conference_id === overlay.conference.id)
                         .map(z => (
-                          <button
+                          <GlassItemButton
                             key={z.id}
-                            type="button"
+                            title={z.name}
+                            subtitle={`${zoneBranchCount.get(z.id) || 0} branch${(zoneBranchCount.get(z.id) || 0) !== 1 ? 'es' : ''}`}
+                            count={zoneMemberCount.get(z.id) || 0}
+                            countLabel="members"
                             onClick={() => openZoneOverlay(z)}
-                            className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-sm text-white break-words">{z.name}</h3>
-                              <p className="text-xs text-white/70">
-                                {zoneBranchCount.get(z.id) || 0} branch{(zoneBranchCount.get(z.id) || 0) !== 1 ? 'es' : ''}
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <div className="text-lg font-semibold leading-none text-white">{zoneMemberCount.get(z.id) || 0}</div>
-                              <div className="text-[10px] text-white/70 mt-1">members</div>
-                            </div>
-                          </button>
+                          />
                         ))
                     ) : (
                       branches
                         .filter(b => b.zone_id === overlay.zone.id)
                         .map(b => (
-                          <button
+                          <GlassItemButton
                             key={b.id}
-                            type="button"
+                            title={b.name}
+                            subtitle={b.institution || undefined}
+                            count={branchMemberCount.get(b.id) || 0}
+                            countLabel="members"
                             onClick={() => openBranchFromOverlay(b)}
-                            className="text-left group w-full min-w-0 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-colors p-3 flex items-center gap-3 backdrop-blur-md"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
-                              {b.institution && <p className="text-xs text-white/70 break-words">{b.institution}</p>}
-                            </div>
-                            <div className="text-right shrink-0">
-                              <div className="text-lg font-semibold leading-none text-white">{branchMemberCount.get(b.id) || 0}</div>
-                              <div className="text-[10px] text-white/70 mt-1">members</div>
-                            </div>
-                          </button>
+                          />
                         ))
                     )}
                   </div>
-                </div>
-              </div>
+                </GlassScrollContainer>
+                {overlay.level === 'branches' && (
+                  <div className="mt-4 flex gap-2">
+                    <GlassButton
+                      size="sm"
+                      onClick={() => setOverlay({ level: 'zones', conference: overlay.conference })}
+                    >
+                      Back
+                    </GlassButton>
+                  </div>
+                )}
+              </GlassPanel>
             </div>
           </div>
         </>

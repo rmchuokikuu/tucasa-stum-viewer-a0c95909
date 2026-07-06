@@ -115,38 +115,43 @@
 
 @layer components {
   .glass-card {
-    background-color: hsl(var(--card) / 0.85);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-    border-radius: var(--radius);
-    border: 1px solid hsl(var(--border) / 0.6);
-    box-shadow: var(--shadow-glass);
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 32px 90px -30px rgba(2, 8, 23, 0.75);
   }
+  
   .glass-card-hover {
     @apply glass-card;
-    transition: all 0.3s ease;
+    transition: all 250ms ease;
   }
+  
   .glass-card-hover:hover {
-    box-shadow: var(--shadow-card-hover);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 40px 100px -30px rgba(2, 8, 23, 0.85);
   }
 
   .premium-card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border-radius: calc(var(--radius) * 1.15);
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 32px 90px -30px rgba(2, 8, 23, 0.75);
   }
+  
   .premium-card-hover {
     @apply premium-card;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    transition: transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease;
   }
+  
   .premium-card-hover:hover {
     transform: translateY(-4px);
-    border-color: rgba(255,255,255,0.28);
-    box-shadow: 0 32px 80px rgba(15, 23, 42, 0.28);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 40px 100px -30px rgba(2, 8, 23, 0.85);
   }
 
   .gradient-gold { background: var(--gradient-gold); }
@@ -498,24 +503,6 @@
       filter 280ms ease;
   }
 
-  .glass-card,
-  .church-card,
-  .glass-card-hover {
-    border-radius: 1.5rem;
-    background-color: hsla(0,0%,100%,0.22);
-    border: 1px solid rgba(255,255,255,0.18);
-    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.12);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
-    overflow: hidden;
-  }
-
-  .glass-card-hover:hover,
-  .church-card:hover {
-    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
-    transform: translateY(-3px);
-  }
-
   /* Module card reflection (mirrored icon below card) */
   .reflection-icon {
     transform: scaleY(-1);
@@ -780,4 +767,138 @@
 /* Links */
 .dashboard-surface a { color: #bfdbfe; }
 .dashboard-surface a:hover { color: #ffffff; }
+
+/* ===== GLASS DESIGN SYSTEM UTILITIES ===== */
+/* Matches the Members overlay design exactly */
+
+/* Glass Panel - Main container */
+.glass-panel {
+  border-radius: 30px;
+  padding: 1rem;
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 32px 90px -30px rgba(2, 8, 23, 0.75);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .glass-panel {
+    padding: 1.5rem;
+  }
+}
+
+/* Glass Overlay - Background with radial gradients */
+.glass-overlay {
+  background:
+    radial-gradient(1200px 700px at 10% -10%, rgba(96,165,250,0.5), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgba(186,230,253,0.35), transparent 60%),
+    radial-gradient(900px 700px at 50% 120%, rgba(59,130,246,0.45), transparent 60%),
+    linear-gradient(180deg, #173A82 0%, #1E4AA0 50%, #173A82 100%);
+}
+
+/* Glass Scroll Container */
+.glass-scroll-container {
+  border-radius: 24px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background-color: rgb(255 255 255 / 0.05);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0.75rem;
+  max-height: calc(100vh - 10rem);
+}
+
+/* Glass Item Button - Individual items in scrollable list */
+.glass-item-button {
+  border-radius: 22px;
+  background-color: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.2);
+  padding: 0.75rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+  width: 100%;
+  min-width: 0;
+}
+
+.glass-item-button:hover {
+  background-color: rgb(255 255 255 / 0.2);
+  border-color: rgb(255 255 255 / 0.4);
+}
+
+.glass-item-button .title {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: white;
+  word-break: break-words;
+}
+
+.glass-item-button .subtitle {
+  font-size: 0.75rem;
+  color: rgb(255 255 255 / 0.7);
+  word-break: break-words;
+}
+
+.glass-item-button .count {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.glass-item-button .count-number {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1;
+  color: white;
+}
+
+.glass-item-button .count-label {
+  font-size: 0.625rem;
+  color: rgb(255 255 255 / 0.7);
+  margin-top: 0.25rem;
+}
+
+/* Glass Button - Action buttons */
+.glass-button {
+  background-color: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.3);
+  color: white;
+  transition: all 150ms ease;
+}
+
+.glass-button:hover {
+  background-color: rgb(255 255 255 / 0.2);
+  color: white;
+}
+
+.glass-button.subtle {
+  background-color: rgb(255 255 255 / 0.05);
+  border-color: rgb(255 255 255 / 0.2);
+  color: rgb(255 255 255 / 0.9);
+}
+
+.glass-button.subtle:hover {
+  background-color: rgb(255 255 255 / 0.1);
+  color: white;
+}
+
+/* Animation */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 

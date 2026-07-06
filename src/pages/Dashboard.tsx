@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { StartupScreen } from '@/components/StartupScreen';
+import { GlassPanel, GlassOverlay, GlassButton } from '@/components/glass';
 import {
   Users, ShieldCheck, FileText, Network, UserCircle,
   Camera, Shield, Pencil,
@@ -270,37 +271,26 @@ export default function Dashboard() {
       <section className="mb-8">
         {activeModule && (
           <>
-            <div
-              className="fixed inset-0 z-40 bg-[#0a1228]/45 backdrop-blur-[2px]"
-              onClick={() => setActiveModule(null)}
-            />
-            <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-              <div className="w-full max-w-[420px] animate-slide-down">
-              <div className="glass-card p-5 border border-white/25 shadow-2xl backdrop-blur-2xl bg-gradient-to-br from-white/25 via-white/12 to-white/5 rounded-[28px]">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.28em] text-white/70">Quick actions</p>
-                    <h3 className="mt-2 text-lg font-semibold text-white">{activeModule.title}</h3>
-                  </div>
+            <GlassOverlay onClick={() => setActiveModule(null)} className="z-40" />
+            <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 animate-slide-down">
+              <div className="w-full max-w-[420px]">
+                <GlassPanel
+                  title={activeModule.title}
+                  subtitle="Quick actions"
+                  showClose
+                  onClose={() => setActiveModule(null)}
+                >
                   <button
                     type="button"
-                    onClick={() => setActiveModule(null)}
-                    className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/20"
+                    onClick={() => {
+                      navigate(activeModule.to);
+                      setActiveModule(null);
+                    }}
+                    className="mt-4 w-full rounded-2xl bg-gradient-to-r from-church-blue to-church-blue-light px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-church-blue/20 hover:shadow-lg hover:shadow-church-blue/30 transition-all"
                   >
-                    Close
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigate(activeModule.to);
-                    setActiveModule(null);
-                  }}
-                  className="mt-4 w-full rounded-2xl bg-gradient-to-r from-church-blue to-church-blue-light px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-church-blue/20"
-                >
                     Open {activeModule.title}
-                </button>
-              </div>
+                  </button>
+                </GlassPanel>
               </div>
             </div>
           </>
@@ -333,14 +323,14 @@ export default function Dashboard() {
       </section>
 
       {myMembership && (
-        <Card className="glass-card mb-6">
+        <Card className="premium-card border border-white/30 shadow-2xl mb-6">
               <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2">
-                <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
-                  <UserCircle className="h-5 w-5 text-church-blue" /> My Membership Details
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display text-white">
+                  <UserCircle className="h-5 w-5 text-gold-light" /> My Membership Details
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline" size="sm" className="gap-1"
+                    variant="outline" size="sm" className="gap-1 bg-white/10 border-white/30 text-white hover:bg-white/20"
                     onClick={() => {
                       setEditForm({
                         full_name: myMembership.full_name || '',
@@ -355,14 +345,14 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            <div><span className="text-muted-foreground">Name:</span> <span className="font-medium">{myMembership.full_name}</span></div>
-            <div><span className="text-muted-foreground">Status:</span> <span className="font-medium">{myMembership.is_active ? 'Active' : 'Inactive'}</span></div>
-            {myMembership.phone && <div><span className="text-muted-foreground">Phone:</span> {myMembership.phone}</div>}
-            {myMembership.institution && <div><span className="text-muted-foreground">Institution:</span> {myMembership.institution}</div>}
-            {myMembership.union_name && <div><span className="text-muted-foreground">Union:</span> {myMembership.union_name}</div>}
-            {myMembership.conference_name && <div><span className="text-muted-foreground">Conference:</span> {myMembership.conference_name}</div>}
-            {myMembership.zone_name && <div><span className="text-muted-foreground">Zone:</span> {myMembership.zone_name}</div>}
-            {myMembership.branch_name && <div><span className="text-muted-foreground">Branch:</span> {myMembership.branch_name}</div>}
+            <div><span className="text-white/70">Name:</span> <span className="font-medium text-white">{myMembership.full_name}</span></div>
+            <div><span className="text-white/70">Status:</span> <span className="font-medium text-white">{myMembership.is_active ? 'Active' : 'Inactive'}</span></div>
+            {myMembership.phone && <div><span className="text-white/70">Phone:</span> <span className="text-white">{myMembership.phone}</span></div>}
+            {myMembership.institution && <div><span className="text-white/70">Institution:</span> <span className="text-white">{myMembership.institution}</span></div>}
+            {myMembership.union_name && <div><span className="text-white/70">Union:</span> <span className="text-white">{myMembership.union_name}</span></div>}
+            {myMembership.conference_name && <div><span className="text-white/70">Conference:</span> <span className="text-white">{myMembership.conference_name}</span></div>}
+            {myMembership.zone_name && <div><span className="text-white/70">Zone:</span> <span className="text-white">{myMembership.zone_name}</span></div>}
+            {myMembership.branch_name && <div><span className="text-white/70">Branch:</span> <span className="text-white">{myMembership.branch_name}</span></div>}
           </CardContent>
         </Card>
       )}
@@ -417,11 +407,11 @@ export default function Dashboard() {
       </Dialog>
 
       {isPlainMember && !myMembership && (
-        <Card className="border-dashed glass-card">
+        <Card className="border-dashed premium-card border-white/30">
           <CardContent className="py-10 text-center px-4">
-            <Users className="h-10 w-10 mx-auto text-muted-foreground/40 mb-4" />
-            <h3 className="font-display text-lg mb-2">Your details are not available</h3>
-            <p className="text-muted-foreground text-sm max-w-md mx-auto">
+            <Users className="h-10 w-10 mx-auto text-white/40 mb-4" />
+            <h3 className="font-display text-lg mb-2 text-white">Your details are not available</h3>
+            <p className="text-white/70 text-sm max-w-md mx-auto">
               Contact your branch leader.
             </p>
           </CardContent>
