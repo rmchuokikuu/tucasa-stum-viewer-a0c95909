@@ -51,7 +51,7 @@ const LEADERSHIP_POSITIONS = [
   'Youth Training Coordinator',
 ] as const;
 
-const leadershipPositionIndex = new Map(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
+const leadershipPositionIndex = new Map<string, number>(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
 
 function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
   leader: LeaderRow;
