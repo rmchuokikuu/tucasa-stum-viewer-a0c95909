@@ -111,7 +111,7 @@ export default function Reports() {
         primary = myZones.map(z => {
           const zBranchIds = new Set(branches.filter(b => b.zone_id === z.id).map(b => b.id));
           const zMembers = members.filter(m => zBranchIds.has(m.branch_id));
-          return { name: z.name, members: zMembers.length, active: zMembers.filter(m => m.is_active).length, children: zBranchIds.size };
+          return { name: z.name, members: zMembers.length, children: zBranchIds.size };
         }).sort((a, b) => b.members - a.members);
       } else if (isZone) {
         scopedMode = 'zone';
