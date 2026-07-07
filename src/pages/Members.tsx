@@ -610,21 +610,15 @@ export default function Members() {
                       <TableHead className="text-white/85">Name</TableHead>
                       <TableHead className="text-white/85">Phone</TableHead>
                       <TableHead className="text-white/85">Institution</TableHead>
-                      <TableHead className="text-white/85">Status</TableHead>
                       {(canEdit || canDelete) && <TableHead className="text-right text-white/85">Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {visibleMembers.map(m => (
                       <TableRow key={m.id} className="border-white/10 hover:bg-white/5">
-                        <TableCell className="font-medium text-white">{m.full_name}</TableCell>
+                        <TableCell className="font-medium text-white">{toTitleCase(m.full_name)}</TableCell>
                         <TableCell className="text-white/85">{m.phone || '—'}</TableCell>
-                        <TableCell className="text-white/85">{m.institution || '—'}</TableCell>
-                        <TableCell>
-                          <Badge variant={m.is_active ? 'default' : 'secondary'}>
-                            {m.is_active ? 'Active' : 'Inactive'}
-                          </Badge>
-                        </TableCell>
+                        <TableCell className="text-white/85">{m.institution ? toTitleCase(m.institution) : '—'}</TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
