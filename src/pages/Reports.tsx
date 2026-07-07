@@ -145,7 +145,6 @@ export default function Reports() {
             full_name: me.full_name,
             phone: (me as any).phone,
             institution: (me as any).institution,
-            is_active: me.is_active,
             branch_name: b?.name,
             zone_name: z?.name,
             conference_name: c?.name,
