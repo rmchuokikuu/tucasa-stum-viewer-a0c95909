@@ -372,9 +372,8 @@ export default function Reports() {
 
       {mode !== 'personal' && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
             <StatTile title="Total Members" value={totals.members} Icon={Users} />
-            <StatTile title="Active Rate" value={`${activeRate}%`} Icon={TrendingUp} />
             <StatTile title={mode === 'branch' || mode === 'zone' ? 'Branches' : 'Zones'} value={mode === 'zone' || mode === 'branch' ? totals.branches : totals.zones} Icon={MapPin} />
             <StatTile title="Conferences" value={totals.conferences} Icon={Building2} />
           </div>
