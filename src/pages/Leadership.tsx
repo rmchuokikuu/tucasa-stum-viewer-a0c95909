@@ -15,6 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
+import { toTitleCase } from '@/lib/utils';
 
 interface LeaderRow {
   id: string;
