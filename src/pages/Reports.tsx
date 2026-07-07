@@ -199,8 +199,9 @@ export default function Reports() {
           branch: branchName(m.branch_id),
           phone: m.phone,
           institution: m.institution,
-          active: !!m.is_active,
         });
+        const sortMembers = <T extends { name: string }>(arr: T[]) =>
+          [...arr].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
         let groupLabel = 'Branch';
         let groups: { name: string; members: ReturnType<typeof memberRow>[] }[] = [];
