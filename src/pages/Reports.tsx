@@ -352,21 +352,21 @@ export default function Reports() {
       {mode === 'personal' && personal && (
         <GlassCard className="mb-6">
           <div className="flex items-center gap-2 text-base sm:text-lg font-display text-white mb-1">
-            <UserCircle className="h-5 w-5 text-white/90" /> {personal.full_name}
+            <UserCircle className="h-5 w-5 text-white/90" /> {toTitleCase(personal.full_name)}
           </div>
           {personal.institution && (
-            <div className="text-xs sm:text-sm text-white/80 mb-4">{personal.institution}</div>
+            <div className="text-xs sm:text-sm text-white/80 mb-4">{toTitleCase(personal.institution)}</div>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white">
             {personal.phone && <div><span className="text-white/60">Phone:</span> {personal.phone}</div>}
-            {personal.institution && <div><span className="text-white/60">Institution:</span> {personal.institution}</div>}
-            {personal.course && <div><span className="text-white/60">Course:</span> {personal.course}</div>}
+            {personal.institution && <div><span className="text-white/60">Institution:</span> {toTitleCase(personal.institution)}</div>}
+            {personal.course && <div><span className="text-white/60">Course:</span> {toTitleCase(personal.course)}</div>}
             {personal.course_duration != null && <div><span className="text-white/60">Duration:</span> {personal.course_duration} yrs</div>}
             {personal.year_of_study != null && <div><span className="text-white/60">Year of Study:</span> {personal.year_of_study}</div>}
-            {personal.union_name && <div><span className="text-white/60">Union:</span> {personal.union_name}</div>}
-            {personal.conference_name && <div><span className="text-white/60">Conference:</span> {personal.conference_name}</div>}
-            {personal.zone_name && <div><span className="text-white/60">Zone:</span> {personal.zone_name}</div>}
-            {personal.branch_name && <div><span className="text-white/60">Branch:</span> {personal.branch_name}</div>}
+            {personal.union_name && <div><span className="text-white/60">Union:</span> {toTitleCase(personal.union_name)}</div>}
+            {personal.conference_name && <div><span className="text-white/60">Conference:</span> {toTitleCase(personal.conference_name)}</div>}
+            {personal.zone_name && <div><span className="text-white/60">Zone:</span> {toTitleCase(personal.zone_name)}</div>}
+            {personal.branch_name && <div><span className="text-white/60">Branch:</span> {toTitleCase(personal.branch_name)}</div>}
           </div>
         </GlassCard>
       )}
