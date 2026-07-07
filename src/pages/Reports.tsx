@@ -121,7 +121,7 @@ export default function Reports() {
         scopedConfIds = new Set(zones.filter(z => scopedZoneIds.has(z.id)).map(z => z.conference_id));
         primary = myBranches.map(b => {
           const bMembers = members.filter(m => m.branch_id === b.id);
-          return { name: b.name, members: bMembers.length, active: bMembers.filter(m => m.is_active).length };
+          return { name: b.name, members: bMembers.length };
         }).sort((a, b) => b.members - a.members);
       } else if (isBranch) {
         scopedMode = 'branch';
