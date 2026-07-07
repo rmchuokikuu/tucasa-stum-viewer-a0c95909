@@ -131,7 +131,7 @@ export default function Reports() {
         const myBranches = branches.filter(b => scopedBranchIds.has(b.id));
         primary = myBranches.map(b => {
           const bMembers = members.filter(m => m.branch_id === b.id);
-          return { name: b.name, members: bMembers.length, active: bMembers.filter(m => m.is_active).length };
+          return { name: b.name, members: bMembers.length };
         });
       } else if (isPlain) {
         scopedMode = 'personal';
