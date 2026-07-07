@@ -563,7 +563,7 @@ export default function Members() {
               <DrillCard
                 key={z.id}
                 icon={MapPin}
-                title={z.name}
+                title={toTitleCase(z.name)}
                 subtitle={`${zoneBranchCount.get(z.id) || 0} branch${(zoneBranchCount.get(z.id) || 0) !== 1 ? 'es' : ''}`}
                 count={zoneMemberCount.get(z.id) || 0}
                 onClick={() => openZoneOverlay(z, view.conference)}
