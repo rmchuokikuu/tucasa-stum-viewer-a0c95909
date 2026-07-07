@@ -233,6 +233,7 @@ export default function Leadership() {
           user_id: ur.user_id,
           user_email: '',
           user_name: prof?.full_name || 'Unknown',
+          user_phone: (prof as any)?.phone || '',
           role_name: roleMap.get(ur.role_id) || 'Unknown',
           level_id: ur.level_id,
           hierarchy_level: ur.hierarchy_level,
@@ -245,7 +246,7 @@ export default function Leadership() {
         const aIndex = leadershipPositionIndex.has(a.role_name) ? leadershipPositionIndex.get(a.role_name)! : Number.MAX_SAFE_INTEGER;
         const bIndex = leadershipPositionIndex.has(b.role_name) ? leadershipPositionIndex.get(b.role_name)! : Number.MAX_SAFE_INTEGER;
         if (aIndex !== bIndex) return aIndex - bIndex;
-        return a.role_name.localeCompare(b.role_name);
+        return a.user_name.toLowerCase().localeCompare(b.user_name.toLowerCase());
       });
 
     setLeaders(enriched);
