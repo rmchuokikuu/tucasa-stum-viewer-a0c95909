@@ -17,6 +17,7 @@ import { SEO } from '@/components/SEO';
 import { ExportMenu } from '@/components/ExportMenu';
 import { GlassCard, GlassButton, GlassPanel, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 import type { Tables } from '@/integrations/supabase/types';
+import { toTitleCase } from '@/lib/utils';
 
 type Member = Tables<'members'>;
 type Branch = Tables<'branches'>;
