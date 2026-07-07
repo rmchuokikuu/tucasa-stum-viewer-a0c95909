@@ -150,7 +150,7 @@ export default function Leadership() {
     const [urRes, rolesRes, profilesRes, unionsRes, confsRes, zonesRes, branchesRes] = await Promise.all([
       supabase.from('user_roles').select('*'),
       supabase.from('roles').select('id, name'),
-      supabase.from('profiles').select('user_id, full_name, email, branch_id'),
+      supabase.from('profiles').select('user_id, full_name, email, phone, branch_id'),
       supabase.from('unions').select('id, name'),
       supabase.from('conferences').select('id, name, union_id'),
       supabase.from('zones').select('id, name, conference_id'),
