@@ -160,7 +160,6 @@ export default function Reports() {
       const scopedMembers = members.filter(m => scopedBranchIds.has(m.branch_id));
       setTotals({
         members: scopedMembers.length,
-        active: scopedMembers.filter(m => m.is_active).length,
         zones: scopedZoneIds.size,
         conferences: scopedConfIds.size,
         branches: scopedBranchIds.size,
