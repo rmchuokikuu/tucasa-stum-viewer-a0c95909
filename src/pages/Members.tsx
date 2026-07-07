@@ -580,8 +580,8 @@ export default function Members() {
               <DrillCard
                 key={b.id}
                 icon={GitBranch}
-                title={b.name}
-                subtitle={b.institution || undefined}
+                title={toTitleCase(b.name)}
+                subtitle={b.institution ? toTitleCase(b.institution) : undefined}
                 count={branchMemberCount.get(b.id) || 0}
                 onClick={() => setView({ level: 'members', conference: view.conference, zone: view.zone, branch: b })}
               />
