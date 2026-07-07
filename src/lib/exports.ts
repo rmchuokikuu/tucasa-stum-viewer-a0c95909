@@ -280,7 +280,6 @@ export interface LeaderReportMemberRow {
   branch?: string;
   phone?: string | null;
   institution?: string | null;
-  active: boolean;
 }
 
 export interface LeaderReportGroup {
@@ -296,7 +295,6 @@ export interface LeaderReportData {
     zones?: number;
     branches: number;
     members: number;
-    active: number;
   };
   groupLabel: string;                 // "Conference" | "Zone" | "Branch"
   groups: LeaderReportGroup[];
