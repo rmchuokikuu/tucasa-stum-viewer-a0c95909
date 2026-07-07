@@ -180,7 +180,6 @@ export default function Reports() {
           Zone: z?.name || '',
           Branch: b.name,
           Members: bMembers.length,
-          Active: bMembers.filter(m => m.is_active).length,
         };
       }).sort((a, b) =>
         a.Conference.localeCompare(b.Conference) ||
