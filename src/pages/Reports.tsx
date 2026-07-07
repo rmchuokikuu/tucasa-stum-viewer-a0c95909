@@ -56,7 +56,7 @@ export default function Reports() {
   const [mode, setMode] = useState<ScopeMode>('personal');
   const [personal, setPersonal] = useState<{
     full_name: string; phone: string | null; institution: string | null;
-    is_active: boolean; branch_name?: string; zone_name?: string; conference_name?: string; union_name?: string;
+    branch_name?: string; zone_name?: string; conference_name?: string; union_name?: string;
     course?: string | null; course_duration?: number | null; year_of_study?: number | null;
   } | null>(null);
   const [totals, setTotals] = useState({ members: 0, active: 0, zones: 0, conferences: 0, branches: 0 });
