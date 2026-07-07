@@ -343,20 +343,24 @@ export default function Members() {
   };
 
   // Filtered lists for current view (scope-aware)
+  const nameCmp = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
   const visibleConfs = conferences
     .filter(c => conferenceIds.has(c.id))
-    .filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+    .filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => nameCmp(a.name, b.name));
   const visibleZones = view.level !== 'conferences'
     ? zones.filter(z => z.conference_id === view.conference.id && zoneIds.has(z.id) && z.name.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => nameCmp(a.name, b.name))
     : [];
   const visibleBranches = (view.level === 'branches' || view.level === 'members')
     ? branches.filter(b => b.zone_id === view.zone.id && branchIds.has(b.id) && b.name.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => nameCmp(a.name, b.name))
     : [];
   const visibleMembers = view.level === 'members'
     ? members.filter(m => m.branch_id === view.branch.id && (
         m.full_name.toLowerCase().includes(search.toLowerCase()) ||
         (m.phone?.toLowerCase().includes(search.toLowerCase()))
-      ))
+      )).sort((a, b) => nameCmp(a.full_name, b.full_name))
     : [];
 
   // Totals scoped to what the user can access
