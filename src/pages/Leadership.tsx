@@ -242,12 +242,7 @@ export default function Leadership() {
           end_date: ur.end_date ?? null,
         };
       })
-      .sort((a, b) => {
-        const aIndex = leadershipPositionIndex.has(a.role_name) ? leadershipPositionIndex.get(a.role_name)! : Number.MAX_SAFE_INTEGER;
-        const bIndex = leadershipPositionIndex.has(b.role_name) ? leadershipPositionIndex.get(b.role_name)! : Number.MAX_SAFE_INTEGER;
-        if (aIndex !== bIndex) return aIndex - bIndex;
-        return a.user_name.toLowerCase().localeCompare(b.user_name.toLowerCase());
-      });
+      .sort((a, b) => a.user_name.toLowerCase().localeCompare(b.user_name.toLowerCase()));
 
     setLeaders(enriched);
     setLoading(false);
