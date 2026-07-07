@@ -493,21 +493,22 @@ export default function Leadership() {
                             <GlassCard key={l.id} variant="interactive" className="!p-3">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
-                                  <h4 className="font-medium text-sm truncate text-white">{l.user_name}</h4>
+                                  <h4 className="font-medium text-sm truncate text-white">{toTitleCase(l.user_name)}</h4>
                                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
                                     <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
                                       <Shield className="h-2.5 w-2.5" />{l.role_name}
                                     </Badge>
-                                    <Badge variant="outline" className={`text-[10px] border-white/30 ${l.is_active ? 'bg-white/20 text-white' : 'bg-white/5 text-white/70'}`}>
-                                      {l.is_active ? 'Active' : 'Inactive'}
-                                    </Badge>
+                                    {l.user_phone ? (
+                                      <Badge variant="outline" className="text-[10px] bg-white/10 border-white/30 text-white/90">
+                                        {l.user_phone}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-[10px] text-white/50">No phone</span>
+                                    )}
                                   </div>
                                 </div>
                                 {canManage && (
                                   <div className="flex flex-col gap-1 shrink-0">
-                                    <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2 text-white hover:bg-white/10" onClick={() => handleToggleActive(l.id, !l.is_active)}>
-                                      {l.is_active ? 'Deactivate' : 'Activate'}
-                                    </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/10" onClick={() => handleRemove(l.id)}>
                                       <Trash2 className="h-3.5 w-3.5 text-red-400" />
                                     </Button>
