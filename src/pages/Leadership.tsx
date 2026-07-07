@@ -458,9 +458,11 @@ export default function Leadership() {
               existing.list.push(r);
               byScope.set(r.level_id, existing);
             });
-            [...byScope.entries()].forEach(([scopeId, entry]) => {
-              groups.push({ key: `${lvl}::${scopeId}`, lvl, scopeId, scopeName: entry.name, list: entry.list });
-            });
+            [...byScope.entries()]
+              .sort((a, b) => a[1].name.toLowerCase().localeCompare(b[1].name.toLowerCase()))
+              .forEach(([scopeId, entry]) => {
+                groups.push({ key: `${lvl}::${scopeId}`, lvl, scopeId, scopeName: entry.name, list: entry.list });
+              });
           });
           return (
             <div className="space-y-3">
