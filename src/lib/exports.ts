@@ -280,7 +280,6 @@ export interface LeaderReportMemberRow {
   branch?: string;
   phone?: string | null;
   institution?: string | null;
-  active: boolean;
 }
 
 export interface LeaderReportGroup {
@@ -296,7 +295,6 @@ export interface LeaderReportData {
     zones?: number;
     branches: number;
     members: number;
-    active: number;
   };
   groupLabel: string;                 // "Conference" | "Zone" | "Branch"
   groups: LeaderReportGroup[];
@@ -339,11 +337,6 @@ export async function exportLeaderReportPDF(
   if (data.counts.zones != null) countRows.push(['Zones', data.counts.zones]);
   countRows.push(['Branches', data.counts.branches]);
   countRows.push(['Total Members', data.counts.members]);
-  countRows.push(['Active Members', data.counts.active]);
-  countRows.push([
-    'Inactive Members',
-    Math.max(0, data.counts.members - data.counts.active),
-  ]);
 
   autoTable(doc, {
     head: [['Summary', 'Count']],
@@ -383,8 +376,8 @@ export async function exportLeaderReportPDF(
     );
 
     const head = showBranchCol
-      ? [['#', 'Full Name', 'Branch', 'Phone', 'Status']]
-      : [['#', 'Full Name', 'Phone', 'Institution', 'Status']];
+      ? [['#', 'Full Name', 'Branch', 'Phone']]
+      : [['#', 'Full Name', 'Phone', 'Institution']];
 
     const body = group.members.map((m, i) =>
       showBranchCol
@@ -393,14 +386,12 @@ export async function exportLeaderReportPDF(
             m.name,
             m.branch || '',
             m.phone || '',
-            m.active ? 'Active' : 'Inactive',
           ]
         : [
             i + 1,
             m.name,
             m.phone || '',
             m.institution || '',
-            m.active ? 'Active' : 'Inactive',
           ],
     );
 
@@ -446,8 +437,6 @@ export function exportLeaderReportExcel(data: LeaderReportData, filename: string
   if (data.counts.zones != null) summaryRows.push(['Zones', data.counts.zones]);
   summaryRows.push(['Branches', data.counts.branches]);
   summaryRows.push(['Total Members', data.counts.members]);
-  summaryRows.push(['Active Members', data.counts.active]);
-  summaryRows.push(['Inactive Members', Math.max(0, data.counts.members - data.counts.active)]);
   summaryRows.push([]);
   summaryRows.push([`Members by ${data.groupLabel}`, 'Count']);
   data.groups.forEach(g => summaryRows.push([g.name, g.members.length]));
@@ -459,8 +448,8 @@ export function exportLeaderReportExcel(data: LeaderReportData, filename: string
   // One sheet per group with the member list
   const showBranchCol = data.scopeLevel !== 'branch';
   const header = showBranchCol
-    ? ['#', 'Full Name', 'Branch', 'Phone', 'Institution', 'Status']
-    : ['#', 'Full Name', 'Phone', 'Institution', 'Status'];
+    ? ['#', 'Full Name', 'Branch', 'Phone', 'Institution']
+    : ['#', 'Full Name', 'Phone', 'Institution'];
 
   data.groups.forEach(group => {
     const rows: (string | number)[][] = [
@@ -470,14 +459,14 @@ export function exportLeaderReportExcel(data: LeaderReportData, filename: string
       header,
       ...group.members.map((m, i) =>
         showBranchCol
-          ? [i + 1, m.name, m.branch || '', m.phone || '', m.institution || '', m.active ? 'Active' : 'Inactive']
-          : [i + 1, m.name, m.phone || '', m.institution || '', m.active ? 'Active' : 'Inactive'],
+          ? [i + 1, m.name, m.branch || '', m.phone || '', m.institution || '']
+          : [i + 1, m.name, m.phone || '', m.institution || ''],
       ),
     ];
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws['!cols'] = showBranchCol
-      ? [{ wch: 5 }, { wch: 28 }, { wch: 22 }, { wch: 16 }, { wch: 26 }, { wch: 10 }]
-      : [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 26 }, { wch: 10 }];
+      ? [{ wch: 5 }, { wch: 28 }, { wch: 22 }, { wch: 16 }, { wch: 26 }]
+      : [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 26 }];
     XLSX.utils.book_append_sheet(wb, ws, safeSheetName(group.name, used));
   });
 

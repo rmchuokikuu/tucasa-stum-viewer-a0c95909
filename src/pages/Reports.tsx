@@ -4,12 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, Building2, MapPin, ArrowLeft, UserCircle } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
 import type { LeaderReportData } from '@/lib/exports';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
+import { toTitleCase } from '@/lib/utils';
 
 // Glass-friendly chart palette — white/blue translucent
 const CHART_COLORS = [
@@ -23,7 +24,7 @@ const CHART_COLORS = [
   'rgba(125,211,252,0.85)',
 ];
 
-type Stat = { name: string; members: number; active: number; children?: number };
+type Stat = { name: string; members: number; children?: number };
 
 interface HierarchyExportRow {
   [key: string]: string | number;
@@ -32,7 +33,6 @@ interface HierarchyExportRow {
   Zone: string;
   Branch: string;
   Members: number;
-  Active: number;
 }
 
 type ScopeMode = 'personal' | 'branch' | 'zone' | 'conference' | 'union';
@@ -57,10 +57,10 @@ export default function Reports() {
   const [mode, setMode] = useState<ScopeMode>('personal');
   const [personal, setPersonal] = useState<{
     full_name: string; phone: string | null; institution: string | null;
-    is_active: boolean; branch_name?: string; zone_name?: string; conference_name?: string; union_name?: string;
+    branch_name?: string; zone_name?: string; conference_name?: string; union_name?: string;
     course?: string | null; course_duration?: number | null; year_of_study?: number | null;
   } | null>(null);
-  const [totals, setTotals] = useState({ members: 0, active: 0, zones: 0, conferences: 0, branches: 0 });
+  const [totals, setTotals] = useState({ members: 0, zones: 0, conferences: 0, branches: 0 });
   const [leaderReport, setLeaderReport] = useState<LeaderReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -101,7 +101,7 @@ export default function Reports() {
           const cZones = zones.filter(z => z.conference_id === c.id);
           const cBranchIds = new Set(branches.filter(b => cZones.some(z => z.id === b.zone_id)).map(b => b.id));
           const cMembers = members.filter(m => cBranchIds.has(m.branch_id));
-          return { name: c.name, members: cMembers.length, active: cMembers.filter(m => m.is_active).length, children: cZones.length };
+          return { name: c.name, members: cMembers.length, children: cZones.length };
         }).sort((a, b) => b.members - a.members);
       } else if (isConf) {
         scopedMode = 'conference';
@@ -112,7 +112,7 @@ export default function Reports() {
         primary = myZones.map(z => {
           const zBranchIds = new Set(branches.filter(b => b.zone_id === z.id).map(b => b.id));
           const zMembers = members.filter(m => zBranchIds.has(m.branch_id));
-          return { name: z.name, members: zMembers.length, active: zMembers.filter(m => m.is_active).length, children: zBranchIds.size };
+          return { name: z.name, members: zMembers.length, children: zBranchIds.size };
         }).sort((a, b) => b.members - a.members);
       } else if (isZone) {
         scopedMode = 'zone';
@@ -122,7 +122,7 @@ export default function Reports() {
         scopedConfIds = new Set(zones.filter(z => scopedZoneIds.has(z.id)).map(z => z.conference_id));
         primary = myBranches.map(b => {
           const bMembers = members.filter(m => m.branch_id === b.id);
-          return { name: b.name, members: bMembers.length, active: bMembers.filter(m => m.is_active).length };
+          return { name: b.name, members: bMembers.length };
         }).sort((a, b) => b.members - a.members);
       } else if (isBranch) {
         scopedMode = 'branch';
@@ -132,7 +132,7 @@ export default function Reports() {
         const myBranches = branches.filter(b => scopedBranchIds.has(b.id));
         primary = myBranches.map(b => {
           const bMembers = members.filter(m => m.branch_id === b.id);
-          return { name: b.name, members: bMembers.length, active: bMembers.filter(m => m.is_active).length };
+          return { name: b.name, members: bMembers.length };
         });
       } else if (isPlain) {
         scopedMode = 'personal';
@@ -146,7 +146,6 @@ export default function Reports() {
             full_name: me.full_name,
             phone: (me as any).phone,
             institution: (me as any).institution,
-            is_active: me.is_active,
             branch_name: b?.name,
             zone_name: z?.name,
             conference_name: c?.name,
@@ -162,7 +161,6 @@ export default function Reports() {
       const scopedMembers = members.filter(m => scopedBranchIds.has(m.branch_id));
       setTotals({
         members: scopedMembers.length,
-        active: scopedMembers.filter(m => m.is_active).length,
         zones: scopedZoneIds.size,
         conferences: scopedConfIds.size,
         branches: scopedBranchIds.size,
@@ -183,7 +181,6 @@ export default function Reports() {
           Zone: z?.name || '',
           Branch: b.name,
           Members: bMembers.length,
-          Active: bMembers.filter(m => m.is_active).length,
         };
       }).sort((a, b) =>
         a.Conference.localeCompare(b.Conference) ||
@@ -203,8 +200,9 @@ export default function Reports() {
           branch: branchName(m.branch_id),
           phone: m.phone,
           institution: m.institution,
-          active: !!m.is_active,
         });
+        const sortMembers = <T extends { name: string }>(arr: T[]) =>
+          [...arr].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
         let groupLabel = 'Branch';
         let groups: { name: string; members: ReturnType<typeof memberRow>[] }[] = [];
@@ -254,6 +252,11 @@ export default function Reports() {
           }));
         }
 
+        // Alphabetize members within each group and groups by name
+        const sortedGroups = groups
+          .map(g => ({ ...g, members: sortMembers(g.members) }))
+          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
         setLeaderReport({
           scopeLevel: scopedMode,
           scopeName,
@@ -262,10 +265,9 @@ export default function Reports() {
             zones: scopedMode === 'union' || scopedMode === 'conference' ? scopedZoneIds.size : undefined,
             branches: scopedBranchIds.size,
             members: scopedMembers.length,
-            active: scopedMembers.filter(m => m.is_active).length,
           },
           groupLabel,
-          groups,
+          groups: sortedGroups,
         });
       } else {
         setLeaderReport(null);
@@ -276,7 +278,7 @@ export default function Reports() {
     fetchData();
   }, [userRoles, user, isSuperAdmin, profile]);
 
-  const activeRate = totals.members > 0 ? Math.round((totals.active / totals.members) * 100) : 0;
+  
 
   const chartConfig = Object.fromEntries(
     primaryStats.map((c, i) => [c.name, { label: c.name, color: CHART_COLORS[i % CHART_COLORS.length] }])
@@ -350,32 +352,29 @@ export default function Reports() {
       {mode === 'personal' && personal && (
         <GlassCard className="mb-6">
           <div className="flex items-center gap-2 text-base sm:text-lg font-display text-white mb-1">
-            <UserCircle className="h-5 w-5 text-white/90" /> {personal.full_name}
+            <UserCircle className="h-5 w-5 text-white/90" /> {toTitleCase(personal.full_name)}
           </div>
-          <div className="text-xs sm:text-sm flex items-center gap-1 text-white/80 mb-4">
-            {personal.is_active
-              ? <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> Active member</>
-              : <><XCircle className="h-3.5 w-3.5 text-red-300" /> Inactive</>}
-          </div>
+          {personal.institution && (
+            <div className="text-xs sm:text-sm text-white/80 mb-4">{toTitleCase(personal.institution)}</div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white">
             {personal.phone && <div><span className="text-white/60">Phone:</span> {personal.phone}</div>}
-            {personal.institution && <div><span className="text-white/60">Institution:</span> {personal.institution}</div>}
-            {personal.course && <div><span className="text-white/60">Course:</span> {personal.course}</div>}
+            {personal.institution && <div><span className="text-white/60">Institution:</span> {toTitleCase(personal.institution)}</div>}
+            {personal.course && <div><span className="text-white/60">Course:</span> {toTitleCase(personal.course)}</div>}
             {personal.course_duration != null && <div><span className="text-white/60">Duration:</span> {personal.course_duration} yrs</div>}
             {personal.year_of_study != null && <div><span className="text-white/60">Year of Study:</span> {personal.year_of_study}</div>}
-            {personal.union_name && <div><span className="text-white/60">Union:</span> {personal.union_name}</div>}
-            {personal.conference_name && <div><span className="text-white/60">Conference:</span> {personal.conference_name}</div>}
-            {personal.zone_name && <div><span className="text-white/60">Zone:</span> {personal.zone_name}</div>}
-            {personal.branch_name && <div><span className="text-white/60">Branch:</span> {personal.branch_name}</div>}
+            {personal.union_name && <div><span className="text-white/60">Union:</span> {toTitleCase(personal.union_name)}</div>}
+            {personal.conference_name && <div><span className="text-white/60">Conference:</span> {toTitleCase(personal.conference_name)}</div>}
+            {personal.zone_name && <div><span className="text-white/60">Zone:</span> {toTitleCase(personal.zone_name)}</div>}
+            {personal.branch_name && <div><span className="text-white/60">Branch:</span> {toTitleCase(personal.branch_name)}</div>}
           </div>
         </GlassCard>
       )}
 
       {mode !== 'personal' && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
             <StatTile title="Total Members" value={totals.members} Icon={Users} />
-            <StatTile title="Active Rate" value={`${activeRate}%`} Icon={TrendingUp} />
             <StatTile title={mode === 'branch' || mode === 'zone' ? 'Branches' : 'Zones'} value={mode === 'zone' || mode === 'branch' ? totals.branches : totals.zones} Icon={MapPin} />
             <StatTile title="Conferences" value={totals.conferences} Icon={Building2} />
           </div>

@@ -17,6 +17,7 @@ import { SEO } from '@/components/SEO';
 import { ExportMenu } from '@/components/ExportMenu';
 import { GlassCard, GlassButton, GlassPanel, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 import type { Tables } from '@/integrations/supabase/types';
+import { toTitleCase } from '@/lib/utils';
 
 type Member = Tables<'members'>;
 type Branch = Tables<'branches'>;
@@ -68,14 +69,11 @@ function MemberCard({ member, canEdit, canDelete, onEdit, onDelete }: {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-sm truncate text-white">{member.full_name}</h3>
-            <Badge variant={member.is_active ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-              {member.is_active ? 'Active' : 'Inactive'}
-            </Badge>
+            <h3 className="font-semibold text-sm truncate text-white">{toTitleCase(member.full_name)}</h3>
           </div>
           <div className="space-y-1 text-xs text-white/70">
             {member.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 shrink-0" /><span>{member.phone}</span></div>}
-            {member.institution && <div className="flex items-center gap-1.5"><Building className="h-3 w-3 shrink-0" /><span>{member.institution}</span></div>}
+            {member.institution && <div className="flex items-center gap-1.5"><Building className="h-3 w-3 shrink-0" /><span>{toTitleCase(member.institution)}</span></div>}
           </div>
         </div>
         {(canEdit || canDelete) && (
@@ -345,20 +343,24 @@ export default function Members() {
   };
 
   // Filtered lists for current view (scope-aware)
+  const nameCmp = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
   const visibleConfs = conferences
     .filter(c => conferenceIds.has(c.id))
-    .filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+    .filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => nameCmp(a.name, b.name));
   const visibleZones = view.level !== 'conferences'
     ? zones.filter(z => z.conference_id === view.conference.id && zoneIds.has(z.id) && z.name.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => nameCmp(a.name, b.name))
     : [];
   const visibleBranches = (view.level === 'branches' || view.level === 'members')
     ? branches.filter(b => b.zone_id === view.zone.id && branchIds.has(b.id) && b.name.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => nameCmp(a.name, b.name))
     : [];
   const visibleMembers = view.level === 'members'
     ? members.filter(m => m.branch_id === view.branch.id && (
         m.full_name.toLowerCase().includes(search.toLowerCase()) ||
         (m.phone?.toLowerCase().includes(search.toLowerCase()))
-      ))
+      )).sort((a, b) => nameCmp(a.full_name, b.full_name))
     : [];
 
   // Totals scoped to what the user can access
@@ -442,13 +444,12 @@ export default function Members() {
             <div className="flex gap-2 flex-wrap justify-end">
               <ExportMenu
                 rows={visibleMembers.map(m => ({
-                  Name: m.full_name, Phone: m.phone || '',
-                  Institution: m.institution || '', Branch: view.branch.name,
-                  Status: m.is_active ? 'Active' : 'Inactive',
+                  Name: toTitleCase(m.full_name), Phone: m.phone || '',
+                  Institution: toTitleCase(m.institution || ''), Branch: toTitleCase(view.branch.name),
                   Joined: new Date(m.created_at).toLocaleDateString(),
                 }))}
                 filename={`members-${view.branch.name}`}
-                title={`Members — ${view.branch.name}`}
+                title={`Members — ${toTitleCase(view.branch.name)}`}
               />
               {canAdd && (
                 <GlassButton onClick={() => openAddInBranch(view.branch.id)}>
@@ -545,7 +546,7 @@ export default function Members() {
               <DrillCard
                 key={c.id}
                 icon={Network}
-                title={c.name}
+                title={toTitleCase(c.name)}
                 subtitle={`${conferenceZoneCount.get(c.id) || 0} zone${(conferenceZoneCount.get(c.id) || 0) !== 1 ? 's' : ''}`}
                 count={conferenceMemberCount.get(c.id) || 0}
                 onClick={() => overlay?.level === 'zones' && overlay.conference.id === c.id ? setOverlay(null) : openConferenceOverlay(c)}
@@ -562,7 +563,7 @@ export default function Members() {
               <DrillCard
                 key={z.id}
                 icon={MapPin}
-                title={z.name}
+                title={toTitleCase(z.name)}
                 subtitle={`${zoneBranchCount.get(z.id) || 0} branch${(zoneBranchCount.get(z.id) || 0) !== 1 ? 'es' : ''}`}
                 count={zoneMemberCount.get(z.id) || 0}
                 onClick={() => openZoneOverlay(z, view.conference)}
@@ -579,8 +580,8 @@ export default function Members() {
               <DrillCard
                 key={b.id}
                 icon={GitBranch}
-                title={b.name}
-                subtitle={b.institution || undefined}
+                title={toTitleCase(b.name)}
+                subtitle={b.institution ? toTitleCase(b.institution) : undefined}
                 count={branchMemberCount.get(b.id) || 0}
                 onClick={() => setView({ level: 'members', conference: view.conference, zone: view.zone, branch: b })}
               />
@@ -591,7 +592,7 @@ export default function Members() {
         <>
           <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
-            <span>{visibleMembers.length} member{visibleMembers.length !== 1 ? 's' : ''} in {view.branch.name}</span>
+            <span>{visibleMembers.length} member{visibleMembers.length !== 1 ? 's' : ''} in {toTitleCase(view.branch.name)}</span>
           </div>
           {visibleMembers.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No members in this branch.</p>
@@ -609,21 +610,15 @@ export default function Members() {
                       <TableHead className="text-white/85">Name</TableHead>
                       <TableHead className="text-white/85">Phone</TableHead>
                       <TableHead className="text-white/85">Institution</TableHead>
-                      <TableHead className="text-white/85">Status</TableHead>
                       {(canEdit || canDelete) && <TableHead className="text-right text-white/85">Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {visibleMembers.map(m => (
                       <TableRow key={m.id} className="border-white/10 hover:bg-white/5">
-                        <TableCell className="font-medium text-white">{m.full_name}</TableCell>
+                        <TableCell className="font-medium text-white">{toTitleCase(m.full_name)}</TableCell>
                         <TableCell className="text-white/85">{m.phone || '—'}</TableCell>
-                        <TableCell className="text-white/85">{m.institution || '—'}</TableCell>
-                        <TableCell>
-                          <Badge variant={m.is_active ? 'default' : 'secondary'}>
-                            {m.is_active ? 'Active' : 'Inactive'}
-                          </Badge>
-                        </TableCell>
+                        <TableCell className="text-white/85">{m.institution ? toTitleCase(m.institution) : '—'}</TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">

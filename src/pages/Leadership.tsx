@@ -15,12 +15,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
+import { toTitleCase } from '@/lib/utils';
 
 interface LeaderRow {
   id: string;
   user_id: string;
   user_email: string;
   user_name: string;
+  user_phone: string;
   role_name: string;
   level_id: string;
   hierarchy_level: string;
@@ -53,33 +55,29 @@ const LEADERSHIP_POSITIONS = [
 
 const leadershipPositionIndex = new Map<string, number>(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
 
-function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
+function LeaderCard({ leader, canManage, onRemove }: {
   leader: LeaderRow;
   canManage: boolean;
   onRemove: (id: string) => void;
-  onToggleActive: (id: string, next: boolean) => void;
 }) {
   return (
     <GlassCard variant="interactive" className="mb-3 !p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-sm truncate text-white">{leader.user_name}</h3>
+          <h3 className="font-medium text-sm truncate text-white">{toTitleCase(leader.user_name)}</h3>
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
             <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
               <Shield className="h-2.5 w-2.5" />{leader.role_name}
             </Badge>
             <Badge variant="secondary" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.hierarchy_level}</Badge>
-            <Badge variant={leader.is_active ? 'default' : 'outline'} className="text-[10px]">
-              {leader.is_active ? 'Active' : 'Inactive'}
-            </Badge>
-            <span className="text-xs text-white/70">· {leader.level_name}</span>
+            {leader.user_phone && (
+              <Badge variant="outline" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.user_phone}</Badge>
+            )}
+            <span className="text-xs text-white/70">· {toTitleCase(leader.level_name)}</span>
           </div>
         </div>
         {canManage && (
           <div className="flex flex-col gap-1 shrink-0">
-            <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2 text-white hover:bg-white/10" onClick={() => onToggleActive(leader.id, !leader.is_active)}>
-              {leader.is_active ? 'Deactivate' : 'Activate'}
-            </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/10" onClick={() => onRemove(leader.id)}>
               <Trash2 className="h-3.5 w-3.5 text-red-400" />
             </Button>
@@ -100,7 +98,7 @@ export default function Leadership() {
   const [overlay, setOverlay] = useState<null | { level: 'conferences' } | { level: 'zones'; conference: any } | { level: 'branches'; conference: any; zone: any }>(null);
   const [restoreOverlay, setRestoreOverlay] = useState<null | { level: 'branches'; conference: any; zone: any }>(null);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
-  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; branch_id?: string | null }[]>([]);
+  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; phone?: string | null; branch_id?: string | null }[]>([]);
   const [unions, setUnions] = useState<{ id: string; name: string }[]>([]);
   const [conferences, setConferences] = useState<{ id: string; name: string; union_id: string }[]>([]);
   const [zones, setZones] = useState<{ id: string; name: string; conference_id: string }[]>([]);
@@ -152,7 +150,7 @@ export default function Leadership() {
     const [urRes, rolesRes, profilesRes, unionsRes, confsRes, zonesRes, branchesRes] = await Promise.all([
       supabase.from('user_roles').select('*'),
       supabase.from('roles').select('id, name'),
-      supabase.from('profiles').select('user_id, full_name, email, branch_id'),
+      supabase.from('profiles').select('user_id, full_name, email, phone, branch_id'),
       supabase.from('unions').select('id, name'),
       supabase.from('conferences').select('id, name, union_id'),
       supabase.from('zones').select('id, name, conference_id'),
@@ -235,6 +233,7 @@ export default function Leadership() {
           user_id: ur.user_id,
           user_email: '',
           user_name: prof?.full_name || 'Unknown',
+          user_phone: (prof as any)?.phone || '',
           role_name: roleMap.get(ur.role_id) || 'Unknown',
           level_id: ur.level_id,
           hierarchy_level: ur.hierarchy_level,
@@ -243,12 +242,7 @@ export default function Leadership() {
           end_date: ur.end_date ?? null,
         };
       })
-      .sort((a, b) => {
-        const aIndex = leadershipPositionIndex.has(a.role_name) ? leadershipPositionIndex.get(a.role_name)! : Number.MAX_SAFE_INTEGER;
-        const bIndex = leadershipPositionIndex.has(b.role_name) ? leadershipPositionIndex.get(b.role_name)! : Number.MAX_SAFE_INTEGER;
-        if (aIndex !== bIndex) return aIndex - bIndex;
-        return a.role_name.localeCompare(b.role_name);
-      });
+      .sort((a, b) => a.user_name.toLowerCase().localeCompare(b.user_name.toLowerCase()));
 
     setLeaders(enriched);
     setLoading(false);
@@ -464,9 +458,11 @@ export default function Leadership() {
               existing.list.push(r);
               byScope.set(r.level_id, existing);
             });
-            [...byScope.entries()].forEach(([scopeId, entry]) => {
-              groups.push({ key: `${lvl}::${scopeId}`, lvl, scopeId, scopeName: entry.name, list: entry.list });
-            });
+            [...byScope.entries()]
+              .sort((a, b) => a[1].name.toLowerCase().localeCompare(b[1].name.toLowerCase()))
+              .forEach(([scopeId, entry]) => {
+                groups.push({ key: `${lvl}::${scopeId}`, lvl, scopeId, scopeName: entry.name, list: entry.list });
+              });
           });
           return (
             <div className="space-y-3">
@@ -480,7 +476,7 @@ export default function Leadership() {
                           <meta.Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h2 className="font-display text-base sm:text-lg font-semibold text-white truncate">{scopeName}</h2>
+                          <h2 className="font-display text-base sm:text-lg font-semibold text-white truncate">{toTitleCase(scopeName)}</h2>
                           <p className="text-[11px] uppercase tracking-[0.2em] text-white/60">{meta.label}</p>
                         </div>
                             <Badge variant="outline" className="bg-white/10 border-white/30 text-white">{list.length}</Badge>
@@ -497,21 +493,22 @@ export default function Leadership() {
                             <GlassCard key={l.id} variant="interactive" className="!p-3">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
-                                  <h4 className="font-medium text-sm truncate text-white">{l.user_name}</h4>
+                                  <h4 className="font-medium text-sm truncate text-white">{toTitleCase(l.user_name)}</h4>
                                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
                                     <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
                                       <Shield className="h-2.5 w-2.5" />{l.role_name}
                                     </Badge>
-                                    <Badge variant="outline" className={`text-[10px] border-white/30 ${l.is_active ? 'bg-white/20 text-white' : 'bg-white/5 text-white/70'}`}>
-                                      {l.is_active ? 'Active' : 'Inactive'}
-                                    </Badge>
+                                    {l.user_phone ? (
+                                      <Badge variant="outline" className="text-[10px] bg-white/10 border-white/30 text-white/90">
+                                        {l.user_phone}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-[10px] text-white/50">No phone</span>
+                                    )}
                                   </div>
                                 </div>
                                 {canManage && (
                                   <div className="flex flex-col gap-1 shrink-0">
-                                    <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2 text-white hover:bg-white/10" onClick={() => handleToggleActive(l.id, !l.is_active)}>
-                                      {l.is_active ? 'Deactivate' : 'Activate'}
-                                    </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/10" onClick={() => handleRemove(l.id)}>
                                       <Trash2 className="h-3.5 w-3.5 text-red-400" />
                                     </Button>
