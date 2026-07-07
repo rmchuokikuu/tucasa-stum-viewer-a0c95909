@@ -55,33 +55,29 @@ const LEADERSHIP_POSITIONS = [
 
 const leadershipPositionIndex = new Map<string, number>(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
 
-function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
+function LeaderCard({ leader, canManage, onRemove }: {
   leader: LeaderRow;
   canManage: boolean;
   onRemove: (id: string) => void;
-  onToggleActive: (id: string, next: boolean) => void;
 }) {
   return (
     <GlassCard variant="interactive" className="mb-3 !p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-sm truncate text-white">{leader.user_name}</h3>
+          <h3 className="font-medium text-sm truncate text-white">{toTitleCase(leader.user_name)}</h3>
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
             <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
               <Shield className="h-2.5 w-2.5" />{leader.role_name}
             </Badge>
             <Badge variant="secondary" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.hierarchy_level}</Badge>
-            <Badge variant={leader.is_active ? 'default' : 'outline'} className="text-[10px]">
-              {leader.is_active ? 'Active' : 'Inactive'}
-            </Badge>
-            <span className="text-xs text-white/70">· {leader.level_name}</span>
+            {leader.user_phone && (
+              <Badge variant="outline" className="text-[10px] bg-white/10 border-white/30 text-white/90">{leader.user_phone}</Badge>
+            )}
+            <span className="text-xs text-white/70">· {toTitleCase(leader.level_name)}</span>
           </div>
         </div>
         {canManage && (
           <div className="flex flex-col gap-1 shrink-0">
-            <Button variant="ghost" size="sm" className="h-7 text-[10px] px-2 text-white hover:bg-white/10" onClick={() => onToggleActive(leader.id, !leader.is_active)}>
-              {leader.is_active ? 'Deactivate' : 'Activate'}
-            </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-white/10" onClick={() => onRemove(leader.id)}>
               <Trash2 className="h-3.5 w-3.5 text-red-400" />
             </Button>
