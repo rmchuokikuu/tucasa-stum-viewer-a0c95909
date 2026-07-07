@@ -23,7 +23,7 @@ const CHART_COLORS = [
   'rgba(125,211,252,0.85)',
 ];
 
-type Stat = { name: string; members: number; active: number; children?: number };
+type Stat = { name: string; members: number; children?: number };
 
 interface HierarchyExportRow {
   [key: string]: string | number;
@@ -32,7 +32,6 @@ interface HierarchyExportRow {
   Zone: string;
   Branch: string;
   Members: number;
-  Active: number;
 }
 
 type ScopeMode = 'personal' | 'branch' | 'zone' | 'conference' | 'union';
