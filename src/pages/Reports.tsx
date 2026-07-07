@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Users, TrendingUp, Building2, MapPin, ArrowLeft, UserCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, Building2, MapPin, ArrowLeft, UserCircle } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
 import type { LeaderReportData } from '@/lib/exports';
 import { useAuth } from '@/contexts/AuthContext';
