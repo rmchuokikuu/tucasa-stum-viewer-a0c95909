@@ -376,8 +376,8 @@ export async function exportLeaderReportPDF(
     );
 
     const head = showBranchCol
-      ? [['#', 'Full Name', 'Branch', 'Phone', 'Status']]
-      : [['#', 'Full Name', 'Phone', 'Institution', 'Status']];
+      ? [['#', 'Full Name', 'Branch', 'Phone']]
+      : [['#', 'Full Name', 'Phone', 'Institution']];
 
     const body = group.members.map((m, i) =>
       showBranchCol
@@ -386,14 +386,12 @@ export async function exportLeaderReportPDF(
             m.name,
             m.branch || '',
             m.phone || '',
-            m.active ? 'Active' : 'Inactive',
           ]
         : [
             i + 1,
             m.name,
             m.phone || '',
             m.institution || '',
-            m.active ? 'Active' : 'Inactive',
           ],
     );
 
