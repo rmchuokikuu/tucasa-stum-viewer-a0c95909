@@ -10,6 +10,7 @@ import type { LeaderReportData } from '@/lib/exports';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
+import { toTitleCase } from '@/lib/utils';
 
 // Glass-friendly chart palette — white/blue translucent
 const CHART_COLORS = [
