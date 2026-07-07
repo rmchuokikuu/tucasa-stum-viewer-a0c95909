@@ -479,7 +479,7 @@ export default function Leadership() {
                           <meta.Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h2 className="font-display text-base sm:text-lg font-semibold text-white truncate">{scopeName}</h2>
+                          <h2 className="font-display text-base sm:text-lg font-semibold text-white truncate">{toTitleCase(scopeName)}</h2>
                           <p className="text-[11px] uppercase tracking-[0.2em] text-white/60">{meta.label}</p>
                         </div>
                             <Badge variant="outline" className="bg-white/10 border-white/30 text-white">{list.length}</Badge>
