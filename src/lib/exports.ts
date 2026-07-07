@@ -337,11 +337,6 @@ export async function exportLeaderReportPDF(
   if (data.counts.zones != null) countRows.push(['Zones', data.counts.zones]);
   countRows.push(['Branches', data.counts.branches]);
   countRows.push(['Total Members', data.counts.members]);
-  countRows.push(['Active Members', data.counts.active]);
-  countRows.push([
-    'Inactive Members',
-    Math.max(0, data.counts.members - data.counts.active),
-  ]);
 
   autoTable(doc, {
     head: [['Summary', 'Count']],
