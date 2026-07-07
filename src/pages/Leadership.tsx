@@ -51,7 +51,7 @@ const LEADERSHIP_POSITIONS = [
   'Youth Training Coordinator',
 ] as const;
 
-const leadershipPositionIndex = new Map(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
+const leadershipPositionIndex = new Map<string, number>(LEADERSHIP_POSITIONS.map((name, index) => [name, index]));
 
 function LeaderCard({ leader, canManage, onRemove, onToggleActive }: {
   leader: LeaderRow;
@@ -102,7 +102,7 @@ export default function Leadership() {
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; branch_id?: string | null }[]>([]);
   const [unions, setUnions] = useState<{ id: string; name: string }[]>([]);
-  const [conferences, setConferences] = useState<{ id: string; name: string }[]>([]);
+  const [conferences, setConferences] = useState<{ id: string; name: string; union_id: string }[]>([]);
   const [zones, setZones] = useState<{ id: string; name: string; conference_id: string }[]>([]);
   const [branches, setBranches] = useState<{ id: string; name: string; zone_id: string }[]>([]);
 
@@ -154,7 +154,7 @@ export default function Leadership() {
       supabase.from('roles').select('id, name'),
       supabase.from('profiles').select('user_id, full_name, email, branch_id'),
       supabase.from('unions').select('id, name'),
-      supabase.from('conferences').select('id, name'),
+      supabase.from('conferences').select('id, name, union_id'),
       supabase.from('zones').select('id, name, conference_id'),
       supabase.from('branches').select('id, name, zone_id'),
     ]);
