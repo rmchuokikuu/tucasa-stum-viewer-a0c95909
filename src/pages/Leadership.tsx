@@ -102,7 +102,7 @@ export default function Leadership() {
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
   const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; branch_id?: string | null }[]>([]);
   const [unions, setUnions] = useState<{ id: string; name: string }[]>([]);
-  const [conferences, setConferences] = useState<{ id: string; name: string }[]>([]);
+  const [conferences, setConferences] = useState<{ id: string; name: string; union_id: string }[]>([]);
   const [zones, setZones] = useState<{ id: string; name: string; conference_id: string }[]>([]);
   const [branches, setBranches] = useState<{ id: string; name: string; zone_id: string }[]>([]);
 
