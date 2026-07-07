@@ -98,7 +98,7 @@ export default function Leadership() {
   const [overlay, setOverlay] = useState<null | { level: 'conferences' } | { level: 'zones'; conference: any } | { level: 'branches'; conference: any; zone: any }>(null);
   const [restoreOverlay, setRestoreOverlay] = useState<null | { level: 'branches'; conference: any; zone: any }>(null);
   const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
-  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; branch_id?: string | null }[]>([]);
+  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string; email: string | null; phone?: string | null; branch_id?: string | null }[]>([]);
   const [unions, setUnions] = useState<{ id: string; name: string }[]>([]);
   const [conferences, setConferences] = useState<{ id: string; name: string; union_id: string }[]>([]);
   const [zones, setZones] = useState<{ id: string; name: string; conference_id: string }[]>([]);
