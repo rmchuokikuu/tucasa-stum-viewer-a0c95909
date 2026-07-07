@@ -100,7 +100,7 @@ export default function Reports() {
           const cZones = zones.filter(z => z.conference_id === c.id);
           const cBranchIds = new Set(branches.filter(b => cZones.some(z => z.id === b.zone_id)).map(b => b.id));
           const cMembers = members.filter(m => cBranchIds.has(m.branch_id));
-          return { name: c.name, members: cMembers.length, active: cMembers.filter(m => m.is_active).length, children: cZones.length };
+          return { name: c.name, members: cMembers.length, children: cZones.length };
         }).sort((a, b) => b.members - a.members);
       } else if (isConf) {
         scopedMode = 'conference';
