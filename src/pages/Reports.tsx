@@ -59,7 +59,7 @@ export default function Reports() {
     branch_name?: string; zone_name?: string; conference_name?: string; union_name?: string;
     course?: string | null; course_duration?: number | null; year_of_study?: number | null;
   } | null>(null);
-  const [totals, setTotals] = useState({ members: 0, active: 0, zones: 0, conferences: 0, branches: 0 });
+  const [totals, setTotals] = useState({ members: 0, zones: 0, conferences: 0, branches: 0 });
   const [leaderReport, setLeaderReport] = useState<LeaderReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
