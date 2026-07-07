@@ -154,7 +154,7 @@ export default function Leadership() {
       supabase.from('roles').select('id, name'),
       supabase.from('profiles').select('user_id, full_name, email, branch_id'),
       supabase.from('unions').select('id, name'),
-      supabase.from('conferences').select('id, name'),
+      supabase.from('conferences').select('id, name, union_id'),
       supabase.from('zones').select('id, name, conference_id'),
       supabase.from('branches').select('id, name, zone_id'),
     ]);
