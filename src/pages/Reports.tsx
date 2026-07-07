@@ -277,7 +277,7 @@ export default function Reports() {
     fetchData();
   }, [userRoles, user, isSuperAdmin, profile]);
 
-  const activeRate = totals.members > 0 ? Math.round((totals.active / totals.members) * 100) : 0;
+  
 
   const chartConfig = Object.fromEntries(
     primaryStats.map((c, i) => [c.name, { label: c.name, color: CHART_COLORS[i % CHART_COLORS.length] }])
