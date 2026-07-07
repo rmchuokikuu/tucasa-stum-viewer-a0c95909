@@ -592,7 +592,7 @@ export default function Members() {
         <>
           <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
-            <span>{visibleMembers.length} member{visibleMembers.length !== 1 ? 's' : ''} in {view.branch.name}</span>
+            <span>{visibleMembers.length} member{visibleMembers.length !== 1 ? 's' : ''} in {toTitleCase(view.branch.name)}</span>
           </div>
           {visibleMembers.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No members in this branch.</p>
