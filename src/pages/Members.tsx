@@ -69,14 +69,11 @@ function MemberCard({ member, canEdit, canDelete, onEdit, onDelete }: {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-sm truncate text-white">{member.full_name}</h3>
-            <Badge variant={member.is_active ? 'default' : 'secondary'} className="text-[10px] shrink-0">
-              {member.is_active ? 'Active' : 'Inactive'}
-            </Badge>
+            <h3 className="font-semibold text-sm truncate text-white">{toTitleCase(member.full_name)}</h3>
           </div>
           <div className="space-y-1 text-xs text-white/70">
             {member.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 shrink-0" /><span>{member.phone}</span></div>}
-            {member.institution && <div className="flex items-center gap-1.5"><Building className="h-3 w-3 shrink-0" /><span>{member.institution}</span></div>}
+            {member.institution && <div className="flex items-center gap-1.5"><Building className="h-3 w-3 shrink-0" /><span>{toTitleCase(member.institution)}</span></div>}
           </div>
         </div>
         {(canEdit || canDelete) && (
