@@ -413,7 +413,7 @@ export default function Members() {
                   } else if (startLevel === 'zones') {
                     setView({ level: 'zones', conference: view.conference });
                   } else if (startLevel === 'branches') {
-                    setView({ level: 'branches', conference: view.conference, zone: view.zone });
+                    setView({ level: 'branches', conference: (view as any).conference, zone: (view as any).zone });
                   } else {
                     setView({ level: 'conferences' });
                   }
