@@ -444,13 +444,12 @@ export default function Members() {
             <div className="flex gap-2 flex-wrap justify-end">
               <ExportMenu
                 rows={visibleMembers.map(m => ({
-                  Name: m.full_name, Phone: m.phone || '',
-                  Institution: m.institution || '', Branch: view.branch.name,
-                  Status: m.is_active ? 'Active' : 'Inactive',
+                  Name: toTitleCase(m.full_name), Phone: m.phone || '',
+                  Institution: toTitleCase(m.institution || ''), Branch: toTitleCase(view.branch.name),
                   Joined: new Date(m.created_at).toLocaleDateString(),
                 }))}
                 filename={`members-${view.branch.name}`}
-                title={`Members — ${view.branch.name}`}
+                title={`Members — ${toTitleCase(view.branch.name)}`}
               />
               {canAdd && (
                 <GlassButton onClick={() => openAddInBranch(view.branch.id)}>
