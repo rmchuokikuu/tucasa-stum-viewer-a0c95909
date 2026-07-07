@@ -353,11 +353,9 @@ export default function Reports() {
           <div className="flex items-center gap-2 text-base sm:text-lg font-display text-white mb-1">
             <UserCircle className="h-5 w-5 text-white/90" /> {personal.full_name}
           </div>
-          <div className="text-xs sm:text-sm flex items-center gap-1 text-white/80 mb-4">
-            {personal.is_active
-              ? <><CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" /> Active member</>
-              : <><XCircle className="h-3.5 w-3.5 text-red-300" /> Inactive</>}
-          </div>
+          {personal.institution && (
+            <div className="text-xs sm:text-sm text-white/80 mb-4">{personal.institution}</div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white">
             {personal.phone && <div><span className="text-white/60">Phone:</span> {personal.phone}</div>}
             {personal.institution && <div><span className="text-white/60">Institution:</span> {personal.institution}</div>}
