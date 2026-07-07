@@ -546,7 +546,7 @@ export default function Members() {
               <DrillCard
                 key={c.id}
                 icon={Network}
-                title={c.name}
+                title={toTitleCase(c.name)}
                 subtitle={`${conferenceZoneCount.get(c.id) || 0} zone${(conferenceZoneCount.get(c.id) || 0) !== 1 ? 's' : ''}`}
                 count={conferenceMemberCount.get(c.id) || 0}
                 onClick={() => overlay?.level === 'zones' && overlay.conference.id === c.id ? setOverlay(null) : openConferenceOverlay(c)}
