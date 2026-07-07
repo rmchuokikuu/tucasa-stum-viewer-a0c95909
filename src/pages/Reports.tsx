@@ -251,6 +251,11 @@ export default function Reports() {
           }));
         }
 
+        // Alphabetize members within each group and groups by name
+        const sortedGroups = groups
+          .map(g => ({ ...g, members: sortMembers(g.members) }))
+          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
         setLeaderReport({
           scopeLevel: scopedMode,
           scopeName,
@@ -259,10 +264,9 @@ export default function Reports() {
             zones: scopedMode === 'union' || scopedMode === 'conference' ? scopedZoneIds.size : undefined,
             branches: scopedBranchIds.size,
             members: scopedMembers.length,
-            active: scopedMembers.filter(m => m.is_active).length,
           },
           groupLabel,
-          groups,
+          groups: sortedGroups,
         });
       } else {
         setLeaderReport(null);
