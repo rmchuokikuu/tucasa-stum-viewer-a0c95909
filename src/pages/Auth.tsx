@@ -266,7 +266,7 @@ export default function Auth() {
                         <SelectValue placeholder={conferenceId ? 'Select Zone' : 'Select Conference first'} />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl border-white/20 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl">
-                        {filteredZones.map(z => <SelectItem key={z.id} value={z.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{z.name}</SelectItem>)}
+                        {[...filteredZones].sort(byNameAsc).map(z => <SelectItem key={z.id} value={z.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{toTitleCase(z.name)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>
