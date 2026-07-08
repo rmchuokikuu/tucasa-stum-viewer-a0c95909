@@ -75,7 +75,7 @@ export default function Reports() {
         supabase.from('zones').select('id, name, conference_id'),
         supabase.from('conferences').select('id, name, union_id'),
         supabase.from('unions').select('id, name'),
-        supabase.from('user_roles').select('id, user_id, role_id, hierarchy_level, level_id, is_active, end_date'),
+        supabase.from('user_roles').select('id, user_id, role_id, hierarchy_level, level_id'),
         supabase.from('roles').select('id, name'),
         supabase.from('profiles').select('user_id, full_name, email, phone, branch_id'),
       ]);
