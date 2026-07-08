@@ -17,7 +17,7 @@ import { SEO } from '@/components/SEO';
 import { ExportMenu } from '@/components/ExportMenu';
 import { GlassCard, GlassButton, GlassPanel, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 import type { Tables } from '@/integrations/supabase/types';
-import { toTitleCase } from '@/lib/utils';
+import { toTitleCase, byNameAsc } from '@/lib/utils';
 
 type Member = Tables<'members'>;
 type Branch = Tables<'branches'>;
@@ -667,7 +667,7 @@ export default function Members() {
               <Select value={form.branch_id} onValueChange={v => setForm(f => ({ ...f, branch_id: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger>
                 <SelectContent>
-                  {branches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                  {[...branches].sort(byNameAsc).map(b => <SelectItem key={b.id} value={b.id}>{toTitleCase(b.name)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

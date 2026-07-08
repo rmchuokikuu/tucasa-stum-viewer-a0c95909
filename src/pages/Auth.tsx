@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
+import { toTitleCase, byNameAsc } from '@/lib/utils';
 
 import { LogIn, UserPlus, X } from 'lucide-react';
 
@@ -255,7 +256,7 @@ export default function Auth() {
                         <SelectValue placeholder="Select Conference" />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl border-white/20 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl">
-                        {conferences.map(c => <SelectItem key={c.id} value={c.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{c.name}</SelectItem>)}
+                        {[...conferences].sort(byNameAsc).map(c => <SelectItem key={c.id} value={c.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{toTitleCase(c.name)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>
@@ -265,7 +266,7 @@ export default function Auth() {
                         <SelectValue placeholder={conferenceId ? 'Select Zone' : 'Select Conference first'} />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl border-white/20 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl">
-                        {filteredZones.map(z => <SelectItem key={z.id} value={z.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{z.name}</SelectItem>)}
+                        {[...filteredZones].sort(byNameAsc).map(z => <SelectItem key={z.id} value={z.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{toTitleCase(z.name)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>
@@ -275,7 +276,7 @@ export default function Auth() {
                         <SelectValue placeholder={zoneId ? 'Select Branch' : 'Select Zone first'} />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl border-white/20 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl">
-                        {filteredBranches.map(b => <SelectItem key={b.id} value={b.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{b.name}</SelectItem>)}
+                        {[...filteredBranches].sort(byNameAsc).map(b => <SelectItem key={b.id} value={b.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{toTitleCase(b.name)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>

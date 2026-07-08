@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton, GlassItemButton } from '@/components/glass';
 import { computeScope } from '@/lib/scope';
+import { toTitleCase, byNameAsc } from '@/lib/utils';
 
 function HierarchyCard({ item, fields, canDelete, onDelete }: {
   item: any;
@@ -244,7 +245,7 @@ export default function Hierarchy() {
                   <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
                     <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder={`Select ${parentLabel()}`} /></SelectTrigger>
                     <SelectContent>
-                      {parentOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                      {[...parentOptions()].sort(byNameAsc).map(o => <SelectItem key={o.id} value={o.id}>{toTitleCase(o.name)}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>

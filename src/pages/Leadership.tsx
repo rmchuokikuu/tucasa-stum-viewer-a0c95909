@@ -15,7 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
-import { toTitleCase } from '@/lib/utils';
+import { toTitleCase, byNameAsc } from '@/lib/utils';
 
 interface LeaderRow {
   id: string;
@@ -265,35 +265,35 @@ export default function Leadership() {
 
   const profilesForScope = (level: string, levelId: string) => {
     if (!level || !levelId) return [] as typeof profiles;
+    let list: typeof profiles = [];
     if (level === 'union') {
       const confsInUnion = conferences.filter(c => c.union_id === levelId).map(c => c.id);
       const zonesInConfs = zones.filter(z => confsInUnion.includes(z.conference_id)).map(z => z.id);
       const branchesInZones = branches.filter(b => zonesInConfs.includes(b.zone_id)).map(b => b.id);
-      return profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
-    }
-    if (level === 'conference') {
+      list = profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
+    } else if (level === 'conference') {
       const zonesInConf = zones.filter(z => z.conference_id === levelId).map(z => z.id);
       const branchesInZones = branches.filter(b => zonesInConf.includes(b.zone_id)).map(b => b.id);
-      return profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
-    }
-    if (level === 'zone') {
+      list = profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
+    } else if (level === 'zone') {
       const branchesInZone = branches.filter(b => b.zone_id === levelId).map(b => b.id);
-      return profiles.filter(p => p.branch_id && branchesInZone.includes(p.branch_id));
+      list = profiles.filter(p => p.branch_id && branchesInZone.includes(p.branch_id));
+    } else if (level === 'branch') {
+      list = profiles.filter(p => p.branch_id === levelId);
     }
-    if (level === 'branch') {
-      return profiles.filter(p => p.branch_id === levelId);
-    }
-    return [] as typeof profiles;
+    return [...list].sort(byNameAsc);
   };
 
   const levelOptions = () => {
+    let list: { id: string; name: string }[] = [];
     switch (form.hierarchy_level) {
-      case 'union': return unions;
-      case 'conference': return conferences.filter(c => manageableConfIds.has(c.id));
-      case 'zone': return zones.filter(z => manageableZoneIds.has(z.id));
-      case 'branch': return branches.filter(b => manageableBranchIds.has(b.id));
+      case 'union': list = unions; break;
+      case 'conference': list = conferences.filter(c => manageableConfIds.has(c.id)); break;
+      case 'zone': list = zones.filter(z => manageableZoneIds.has(z.id)); break;
+      case 'branch': list = branches.filter(b => manageableBranchIds.has(b.id)); break;
       default: return [];
     }
+    return [...list].sort(byNameAsc);
   };
 
   const resolveRoleId = async (roleName: string) => {
@@ -412,7 +412,7 @@ export default function Leadership() {
                       <Select value={form.level_id} onValueChange={v => setForm(f => ({ ...f, level_id: v }))}>
                         <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select..." /></SelectTrigger>
                         <SelectContent>
-                          {levelOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                          {levelOptions().map(o => <SelectItem key={o.id} value={o.id}>{toTitleCase(o.name)}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -423,7 +423,7 @@ export default function Leadership() {
                     <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
                       <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select user" /></SelectTrigger>
                       <SelectContent>
-                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{p.full_name}</SelectItem>)}
+                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{toTitleCase(p.full_name || '')}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -541,15 +541,15 @@ export default function Leadership() {
                 <GlassScrollContainer>
                   <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
                     {overlay.level === 'conferences' ? (
-                      conferences.map(c => (
+                      [...conferences].sort(byNameAsc).map(c => (
                         <GlassItemButton key={c.id} onClick={() => openOverlayZones(c)} title={c.name} subtitle="Conference" />
                       ))
                     ) : overlay.level === 'zones' ? (
-                      zones.filter(z => z.conference_id === overlay.conference.id).map(z => (
+                      zones.filter(z => z.conference_id === overlay.conference.id).sort(byNameAsc).map(z => (
                         <GlassItemButton key={z.id} onClick={() => openOverlayBranches(z)} title={z.name} subtitle="Zone" />
                       ))
                     ) : (
-                      branches.filter(b => b.zone_id === overlay.zone.id).map(b => (
+                      branches.filter(b => b.zone_id === overlay.zone.id).sort(byNameAsc).map(b => (
                         <GlassCard key={b.id} variant="interactive" className="!p-3">
                           <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
                         </GlassCard>
