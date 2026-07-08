@@ -541,15 +541,15 @@ export default function Leadership() {
                 <GlassScrollContainer>
                   <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
                     {overlay.level === 'conferences' ? (
-                      conferences.map(c => (
+                      [...conferences].sort(byNameAsc).map(c => (
                         <GlassItemButton key={c.id} onClick={() => openOverlayZones(c)} title={c.name} subtitle="Conference" />
                       ))
                     ) : overlay.level === 'zones' ? (
-                      zones.filter(z => z.conference_id === overlay.conference.id).map(z => (
+                      zones.filter(z => z.conference_id === overlay.conference.id).sort(byNameAsc).map(z => (
                         <GlassItemButton key={z.id} onClick={() => openOverlayBranches(z)} title={z.name} subtitle="Zone" />
                       ))
                     ) : (
-                      branches.filter(b => b.zone_id === overlay.zone.id).map(b => (
+                      branches.filter(b => b.zone_id === overlay.zone.id).sort(byNameAsc).map(b => (
                         <GlassCard key={b.id} variant="interactive" className="!p-3">
                           <h3 className="font-medium text-sm text-white break-words">{b.name}</h3>
                         </GlassCard>
