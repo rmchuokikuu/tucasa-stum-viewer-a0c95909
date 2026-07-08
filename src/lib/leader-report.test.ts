@@ -32,7 +32,6 @@ describe('buildLeaderReportData', () => {
     });
 
     expect(data.groups).toHaveLength(1);
-    const conference = data.groups[0];
     const conference = data.groups[0] as import('./leader-report').LeaderReportConferenceNode;
     expect(conference.label).toBe('Conference');
     expect(conference.name).toBe('Conference Alpha');
