@@ -395,37 +395,6 @@ export default function Reports() {
             )}
           </GlassCard>
 
-          {/* Distribution Pie */}
-          <GlassCard>
-            <div className="mb-3">
-              <h2 className="text-base sm:text-lg font-display font-semibold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">Distribution</h2>
-              <p className="text-xs sm:text-sm text-white/70">Share of members across your scope</p>
-            </div>
-            {primaryStats.length > 0 ? (
-              <ChartContainer config={chartConfig} className="h-[280px] w-full">
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} contentStyle={tooltipContentStyle} />
-                  <Pie
-                    data={primaryStats}
-                    dataKey="members"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    stroke="rgba(255,255,255,0.35)"
-                    label={({ name, members }) => `${name}: ${members}`}
-                    labelLine={false}
-                  >
-                    {primaryStats.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            ) : (
-              <p className="text-white/70 text-sm py-8 text-center">No data</p>
-            )}
-          </GlassCard>
         </>
       )}
     </DashboardLayout>
