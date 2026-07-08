@@ -412,7 +412,7 @@ export default function Leadership() {
                       <Select value={form.level_id} onValueChange={v => setForm(f => ({ ...f, level_id: v }))}>
                         <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select..." /></SelectTrigger>
                         <SelectContent>
-                          {levelOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                          {levelOptions().map(o => <SelectItem key={o.id} value={o.id}>{toTitleCase(o.name)}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
