@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { GlassOverlay, GlassPanel, GlassScrollContainer, GlassCard, GlassButton, GlassItemButton } from '@/components/glass';
 import { computeScope } from '@/lib/scope';
+import { toTitleCase, byNameAsc } from '@/lib/utils';
 
 function HierarchyCard({ item, fields, canDelete, onDelete }: {
   item: any;
