@@ -22,6 +22,7 @@ export function SEO({
   keywords = DEFAULT_KEYWORDS,
 }: SEOProps) {
   const fullTitle = `${title} | ${DEFAULT_TITLE}`;
+  const isGitHubDevEnvironment = typeof window !== 'undefined' && /(?:app\.github\.dev|github\.dev)/.test(window.location.hostname);
 
   return (
     <Helmet>
@@ -35,7 +36,7 @@ export function SEO({
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       <link rel="shortcut icon" href="/favicon.ico" />
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-      <link rel="manifest" href="/site.webmanifest" />
+      {!isGitHubDevEnvironment && <link rel="manifest" href="/site.webmanifest" />}
 
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description || DEFAULT_DESCRIPTION} />

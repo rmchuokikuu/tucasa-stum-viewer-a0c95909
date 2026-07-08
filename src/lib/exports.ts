@@ -1,7 +1,11 @@
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import type { LeaderReportData, LeaderReportGroupNode, LeaderReportMemberRow } from './leader-report';
+import type { LeaderExportData } from './leader-export';
 
+export type { LeaderReportData, LeaderReportGroupNode, LeaderReportMemberRow } from './leader-report';
+export type { LeaderExportData } from './leader-export';
 
 export type ExportRow = Record<string, string | number | null | undefined>;
 
@@ -275,29 +279,71 @@ export async function exportPDF(
 // ============================================================
 // Leader-scoped Report PDF
 // ============================================================
-export interface LeaderReportMemberRow {
-  name: string;
-  branch?: string;
-  phone?: string | null;
-  institution?: string | null;
+function getHeadingText(node: LeaderReportGroupNode): string {
+  const countLabel = node.memberCount === 1 ? 'member' : 'members';
+  return `${node.label}: ${node.name} (${node.memberCount} ${countLabel})`;
 }
 
-export interface LeaderReportGroup {
-  name: string;                       // e.g. conference / zone / branch name
-  members: LeaderReportMemberRow[];
-}
+function renderLeaderHierarchy(
+  doc: jsPDF,
+  nodes: LeaderReportGroupNode[],
+  startY: number,
+  leftMargin: number,
+  rightMargin: number,
+  showBranchCol: boolean,
+  logoBase64?: string,
+  sdaLogoBase64?: string,
+  depth = 0,
+): number {
+  let y = startY;
 
-export interface LeaderReportData {
-  scopeLevel: 'union' | 'conference' | 'zone' | 'branch';
-  scopeName: string;                  // e.g. "North East Conference"
-  counts: {
-    conferences?: number;
-    zones?: number;
-    branches: number;
-    members: number;
-  };
-  groupLabel: string;                 // "Conference" | "Zone" | "Branch"
-  groups: LeaderReportGroup[];
+  for (const node of nodes) {
+    const pageH = doc.internal.pageSize.getHeight();
+    if (y > pageH - 40) {
+      doc.addPage();
+      drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+      y = 50;
+    }
+
+    doc.setTextColor(...BRAND_PURPLE_DARK);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(getHeadingText(node), leftMargin + depth * 4, y);
+    y += 4;
+
+    if ('members' in node && node.members.length > 0) {
+      const head = showBranchCol
+        ? [['#', 'Full Name', 'Branch', 'Phone']]
+        : [['#', 'Full Name', 'Phone', 'Institution']];
+
+      const body = node.members.map((member, index) =>
+        showBranchCol
+          ? [index + 1, member.name, member.branch || '', member.phone || '']
+          : [index + 1, member.name, member.phone || '', member.institution || ''],
+      );
+
+      autoTable(doc, {
+        head,
+        body,
+        startY: y + 2,
+        margin: { left: leftMargin + depth * 4, right: rightMargin, top: 44, bottom: 18 },
+        styles: { fontSize: 8, cellPadding: 2, textColor: [40, 40, 40] },
+        headStyles: { fillColor: BRAND_PURPLE, textColor: [255, 255, 255], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 244, 252] },
+        columnStyles: { 0: { halign: 'right', cellWidth: 10 } },
+        didDrawPage: () => {
+          drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+        },
+      });
+      y = ((doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6);
+    }
+
+    if ('children' in node && node.children.length > 0) {
+      y = renderLeaderHierarchy(doc, node.children, y, leftMargin, rightMargin, showBranchCol, logoBase64, sdaLogoBase64, depth + 1);
+    }
+  }
+
+  return y;
 }
 
 export async function exportLeaderReportPDF(
@@ -352,63 +398,192 @@ export async function exportLeaderReportPDF(
     },
   });
 
-  // ---------- Members grouped by sublevel ----------
+  // ---------- Members grouped by the full hierarchy ----------
   const showBranchCol = data.scopeLevel !== 'branch';
+  const startY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+  renderLeaderHierarchy(doc, data.groups, startY, leftMargin, rightMargin, showBranchCol, logoBase64, sdaLogoBase64);
 
-  for (const group of data.groups) {
-    let y =
-      (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
-        .finalY + 8;
-    const pageH = doc.internal.pageSize.getHeight();
-    if (y > pageH - 40) {
-      doc.addPage();
-      drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
-      y = 50;
-    }
-
-    doc.setTextColor(...BRAND_PURPLE_DARK);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text(
-      `${data.groupLabel}: ${group.name}  (${group.members.length} members)`,
-      leftMargin,
-      y,
-    );
-
-    const head = showBranchCol
-      ? [['#', 'Full Name', 'Branch', 'Phone']]
-      : [['#', 'Full Name', 'Phone', 'Institution']];
-
-    const body = group.members.map((m, i) =>
-      showBranchCol
-        ? [
-            i + 1,
-            m.name,
-            m.branch || '',
-            m.phone || '',
-          ]
-        : [
-            i + 1,
-            m.name,
-            m.phone || '',
-            m.institution || '',
-          ],
-    );
-
-    autoTable(doc, {
-      head,
-      body,
-      startY: y + 3,
-      margin: { left: leftMargin, right: rightMargin, top: 44, bottom: 18 },
-      styles: { fontSize: 8, cellPadding: 2, textColor: [40, 40, 40] },
-      headStyles: { fillColor: BRAND_PURPLE, textColor: [255, 255, 255], fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [248, 244, 252] },
-      columnStyles: { 0: { halign: 'right', cellWidth: 10 } },
-      didDrawPage: () => {
-        drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
-      },
-    });
+  const totalPages = (doc as unknown as {
+    internal: { getNumberOfPages: () => number };
+  }).internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    drawFooter(doc, i, totalPages);
   }
+
+  doc.save(`${filename}.pdf`);
+}
+
+export function exportLeaderExportCSV(data: LeaderExportData, filename: string) {
+  const escape = (value: unknown) => {
+    const text = value == null ? '' : String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+
+  const summaryRows = [
+    ['Summary'],
+    ['Metric', 'Value'],
+    ['Total Leaders', data.summary.totalLeaders],
+    ['Union Leaders', data.summary.unionLeaders],
+    ['Conference Leaders', data.summary.conferenceLeaders],
+    ['Zone Leaders', data.summary.zoneLeaders],
+    ['Branch Leaders', data.summary.branchLeaders],
+    [],
+    ['Full Name', 'Leadership Position', 'Scope Level', 'Union', 'Conference', 'Zone', 'Branch', 'Phone', 'Email', 'Gender', 'Status'],
+  ];
+
+  const detailRows = data.rows.map(row => [
+    row.full_name,
+    row.leadership_position,
+    row.scope_level,
+    row.union_name,
+    row.conference_name,
+    row.zone_name,
+    row.branch_name,
+    row.phone,
+    row.email,
+    row.gender,
+    row.status,
+  ]);
+
+  const csv = [...summaryRows, ...detailRows]
+    .map(row => row.map(escape).join(','))
+    .join('\n');
+
+  download(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `${filename}.csv`);
+}
+
+export function exportLeaderExportExcel(data: LeaderExportData, filename: string) {
+  const wb = XLSX.utils.book_new();
+  const used = new Set<string>();
+
+  const summaryRows: (string | number)[][] = [
+    ['TUCASA Leaders Report'],
+    [`Scope`, data.scopeName],
+    ['Generated', new Date().toLocaleString()],
+    [],
+    ['Summary', 'Count'],
+    ['Total Leaders', data.summary.totalLeaders],
+    ['Union Leaders', data.summary.unionLeaders],
+    ['Conference Leaders', data.summary.conferenceLeaders],
+    ['Zone Leaders', data.summary.zoneLeaders],
+    ['Branch Leaders', data.summary.branchLeaders],
+  ];
+
+  const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
+  summaryWs['!cols'] = [{ wch: 24 }, { wch: 16 }];
+  XLSX.utils.book_append_sheet(wb, summaryWs, safeSheetName('Summary', used));
+
+  const detailRows: (string | number)[][] = [
+    ['Full Name', 'Leadership Position', 'Scope Level', 'Union', 'Conference', 'Zone', 'Branch', 'Phone', 'Email', 'Gender', 'Status'],
+    ...data.rows.map(row => [
+      row.full_name,
+      row.leadership_position,
+      row.scope_level,
+      row.union_name,
+      row.conference_name,
+      row.zone_name,
+      row.branch_name,
+      row.phone,
+      row.email,
+      row.gender,
+      row.status,
+    ]),
+  ];
+
+  const detailWs = XLSX.utils.aoa_to_sheet(detailRows);
+  detailWs['!cols'] = [
+    { wch: 24 },
+    { wch: 24 },
+    { wch: 16 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 24 },
+    { wch: 18 },
+    { wch: 12 },
+  ];
+  XLSX.utils.book_append_sheet(wb, detailWs, safeSheetName('Leaders', used));
+
+  XLSX.writeFile(wb, `${filename}.xlsx`);
+}
+
+export async function exportLeaderExportPDF(data: LeaderExportData, filename: string) {
+  const logoBase64 = await imageToBase64('/PCM-logo.png');
+  const sdaLogoBase64 = await imageToBase64('/SDA-logo.png');
+
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const sidePanelW = pageW * (104 / 848);
+  const leftMargin = 10;
+  const rightMargin = sidePanelW + 4;
+
+  const headerBottom = drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+  const title = `Leaders Report — ${data.scopeName}`;
+
+  doc.setTextColor(...BRAND_PURPLE_DARK);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text(title, leftMargin, headerBottom + 4);
+  doc.setDrawColor(...BRAND_LINE);
+  doc.setLineWidth(0.4);
+  doc.line(leftMargin, headerBottom + 6, pageW - rightMargin, headerBottom + 6);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(60, 60, 60);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, leftMargin, headerBottom + 11);
+
+  const summaryRows: (string | number)[][] = [
+    ['Total Leaders', data.summary.totalLeaders],
+    ['Union Leaders', data.summary.unionLeaders],
+    ['Conference Leaders', data.summary.conferenceLeaders],
+    ['Zone Leaders', data.summary.zoneLeaders],
+    ['Branch Leaders', data.summary.branchLeaders],
+  ];
+
+  autoTable(doc, {
+    head: [['Summary', 'Count']],
+    body: summaryRows,
+    startY: headerBottom + 15,
+    margin: { left: leftMargin, right: rightMargin, top: 44, bottom: 18 },
+    styles: { fontSize: 9, cellPadding: 2.5, textColor: [40, 40, 40] },
+    headStyles: { fillColor: BRAND_PURPLE, textColor: [255, 255, 255], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 244, 252] },
+    columnStyles: { 1: { halign: 'right', cellWidth: 40 } },
+    didDrawPage: () => {
+      drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+    },
+  });
+
+  const detailRows = data.rows.map(row => [
+    row.full_name,
+    row.leadership_position,
+    row.scope_level,
+    row.union_name,
+    row.conference_name,
+    row.zone_name,
+    row.branch_name,
+    row.phone,
+    row.email,
+    row.gender,
+    row.status,
+  ]);
+
+  autoTable(doc, {
+    head: [['Full Name', 'Leadership Position', 'Scope Level', 'Union', 'Conference', 'Zone', 'Branch', 'Phone', 'Email', 'Gender', 'Status']],
+    body: detailRows,
+    startY: (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8,
+    margin: { left: leftMargin, right: rightMargin, top: 44, bottom: 18 },
+    styles: { fontSize: 7.5, cellPadding: 1.8, textColor: [40, 40, 40] },
+    headStyles: { fillColor: BRAND_PURPLE, textColor: [255, 255, 255], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 244, 252] },
+    didDrawPage: () => {
+      drawTucasaHeader(doc, logoBase64, sdaLogoBase64);
+    },
+  });
 
   const totalPages = (doc as unknown as {
     internal: { getNumberOfPages: () => number };
@@ -439,7 +614,17 @@ export function exportLeaderReportExcel(data: LeaderReportData, filename: string
   summaryRows.push(['Total Members', data.counts.members]);
   summaryRows.push([]);
   summaryRows.push([`Members by ${data.groupLabel}`, 'Count']);
-  data.groups.forEach(g => summaryRows.push([g.name, g.members.length]));
+  const flattenGroups = (nodes: LeaderReportGroupNode[]): Array<{ name: string; memberCount: number }> => {
+    const rows: Array<{ name: string; memberCount: number }> = [];
+    nodes.forEach(node => {
+      rows.push({ name: node.name, memberCount: node.memberCount });
+      if ('children' in node && node.children.length > 0) {
+        rows.push(...flattenGroups(node.children));
+      }
+    });
+    return rows;
+  };
+  flattenGroups(data.groups).forEach(group => summaryRows.push([group.name, group.memberCount]));
 
   const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
   summaryWs['!cols'] = [{ wch: 28 }, { wch: 22 }];
@@ -448,26 +633,44 @@ export function exportLeaderReportExcel(data: LeaderReportData, filename: string
   // One sheet per group with the member list
   const showBranchCol = data.scopeLevel !== 'branch';
   const header = showBranchCol
-    ? ['#', 'Full Name', 'Branch', 'Phone', 'Institution']
+    ? ['#', 'Full Name', 'Branch', 'Phone']
     : ['#', 'Full Name', 'Phone', 'Institution'];
 
-  data.groups.forEach(group => {
-    const rows: (string | number)[][] = [
-      [`${data.groupLabel}: ${group.name}`],
-      [`Members: ${group.members.length}`],
-      [],
-      header,
-      ...group.members.map((m, i) =>
-        showBranchCol
-          ? [i + 1, m.name, m.branch || '', m.phone || '', m.institution || '']
-          : [i + 1, m.name, m.phone || '', m.institution || ''],
-      ),
-    ];
+  const exportTree = (nodes: LeaderReportGroupNode[]) => {
+    const sheets: Array<{ name: string; rows: (string | number)[][] }> = [];
+
+    nodes.forEach(node => {
+      const rows: (string | number)[][] = [
+        [`${node.label}: ${node.name}`],
+        [`Members: ${node.memberCount}`],
+        [],
+        header,
+      ];
+
+      if ('members' in node) {
+        rows.push(...node.members.map((m, i) =>
+          showBranchCol
+            ? [i + 1, m.name, m.branch || '', m.phone || '']
+            : [i + 1, m.name, m.phone || '', m.institution || ''],
+        ));
+      }
+
+      sheets.push({ name: node.name, rows });
+
+      if ('children' in node && node.children.length > 0) {
+        sheets.push(...exportTree(node.children));
+      }
+    });
+
+    return sheets;
+  };
+
+  exportTree(data.groups).forEach(({ name, rows }) => {
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws['!cols'] = showBranchCol
-      ? [{ wch: 5 }, { wch: 28 }, { wch: 22 }, { wch: 16 }, { wch: 26 }]
+      ? [{ wch: 5 }, { wch: 28 }, { wch: 22 }, { wch: 16 }]
       : [{ wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 26 }];
-    XLSX.utils.book_append_sheet(wb, ws, safeSheetName(group.name, used));
+    XLSX.utils.book_append_sheet(wb, ws, safeSheetName(name, used));
   });
 
   XLSX.writeFile(wb, `${filename}.xlsx`);

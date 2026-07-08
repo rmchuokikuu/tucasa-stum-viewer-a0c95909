@@ -7,27 +7,35 @@ import {
   exportPDF,
   exportLeaderReportPDF,
   exportLeaderReportExcel,
+  exportLeaderExportCSV,
+  exportLeaderExportExcel,
+  exportLeaderExportPDF,
   type ExportRow,
   type LeaderReportData,
+  type LeaderExportData,
 } from '@/lib/exports';
 
 interface ExportMenuProps {
   rows: ExportRow[];
   filename: string;
   title: string;
+  triggerLabel?: string;
   /**
    * If provided, PDF and Excel exports produce the richer leader report
    * (summary counts + members grouped by sub-level). CSV still uses `rows`.
    */
   leaderReport?: LeaderReportData | null;
+  leaderExport?: LeaderExportData | null;
 }
 
-export function ExportMenu({ rows, filename, title, leaderReport }: ExportMenuProps) {
-  const disabled = rows.length === 0 && !leaderReport;
+export function ExportMenu({ rows, filename, title, triggerLabel = 'Export', leaderReport, leaderExport }: ExportMenuProps) {
+  const disabled = rows.length === 0 && !leaderReport && !leaderExport;
 
   const handlePDFExport = async () => {
     try {
-      if (leaderReport) {
+      if (leaderExport) {
+        await exportLeaderExportPDF(leaderExport, filename);
+      } else if (leaderReport) {
         await exportLeaderReportPDF(leaderReport, filename);
       } else {
         await exportPDF(rows, filename, title);
@@ -39,7 +47,9 @@ export function ExportMenu({ rows, filename, title, leaderReport }: ExportMenuPr
 
   const handleExcelExport = () => {
     try {
-      if (leaderReport) {
+      if (leaderExport) {
+        exportLeaderExportExcel(leaderExport, filename);
+      } else if (leaderReport) {
         exportLeaderReportExcel(leaderReport, filename);
       } else {
         exportExcel(rows, filename);
@@ -54,11 +64,11 @@ export function ExportMenu({ rows, filename, title, leaderReport }: ExportMenuPr
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={disabled} className="gap-1">
           <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">Export</span>
+          <span className="hidden sm:inline">{triggerLabel}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => exportCSV(rows, filename)} disabled={rows.length === 0}>
+        <DropdownMenuItem onClick={() => leaderExport ? exportLeaderExportCSV(leaderExport, filename) : exportCSV(rows, filename)} disabled={rows.length === 0 && !leaderExport}>
           <FileText className="h-4 w-4 mr-2" /> CSV
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleExcelExport}>

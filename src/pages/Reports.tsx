@@ -6,7 +6,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Users, Building2, MapPin, ArrowLeft, UserCircle } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
-import type { LeaderReportData } from '@/lib/exports';
+import { buildLeaderReportData, type LeaderReportData } from '@/lib/leader-report';
+import { buildLeaderExportData, type LeaderExportData } from '@/lib/leader-export';
+import { computeScope } from '@/lib/scope';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
@@ -62,16 +64,20 @@ export default function Reports() {
   } | null>(null);
   const [totals, setTotals] = useState({ members: 0, zones: 0, conferences: 0, branches: 0 });
   const [leaderReport, setLeaderReport] = useState<LeaderReportData | null>(null);
+  const [leaderExport, setLeaderExport] = useState<LeaderExportData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [membersRes, branchesRes, zonesRes, confsRes, unionsRes] = await Promise.all([
+      const [membersRes, branchesRes, zonesRes, confsRes, unionsRes, userRolesRes, rolesRes, profilesRes] = await Promise.all([
         supabase.from('members').select('id, full_name, is_active, branch_id, user_id, phone, institution'),
         supabase.from('branches').select('id, name, zone_id'),
         supabase.from('zones').select('id, name, conference_id'),
         supabase.from('conferences').select('id, name, union_id'),
         supabase.from('unions').select('id, name'),
+        supabase.from('user_roles').select('id, user_id, role_id, hierarchy_level, level_id, is_active, end_date'),
+        supabase.from('roles').select('id, name'),
+        supabase.from('profiles').select('user_id, full_name, email, phone, branch_id'),
       ]);
 
       const members = membersRes.data || [];
@@ -79,8 +85,12 @@ export default function Reports() {
       const zones = zonesRes.data || [];
       const conferences = confsRes.data || [];
       const unions = unionsRes.data || [];
+      const allUserRoles = userRolesRes.data || [];
+      const roles = rolesRes.data || [];
+      const profiles = profilesRes.data || [];
 
-      const isUnion = isSuperAdmin || userRoles.some(r => r.hierarchy_level === 'union');
+      const scope = computeScope(userRoles, conferences, zones, branches, profile?.branch_id || null);
+      const isUnion = scope.isUnion || isSuperAdmin;
       const isConf = !isUnion && userRoles.some(r => r.hierarchy_level === 'conference');
       const isZone = !isUnion && !isConf && userRoles.some(r => r.hierarchy_level === 'zone');
       const isBranch = !isUnion && !isConf && !isZone && userRoles.some(r => r.hierarchy_level === 'branch');
@@ -159,6 +169,30 @@ export default function Reports() {
       }
 
       const scopedMembers = members.filter(m => scopedBranchIds.has(m.branch_id));
+      const leaderExportData = scopedMode !== 'personal'
+        ? buildLeaderExportData({
+            scopeLevel: scopedMode,
+            scopeName: scopedMode === 'union'
+              ? (unions[0]?.name || 'Union')
+              : scopedMode === 'conference'
+                ? conferences.filter(c => scopedConfIds.has(c.id)).map(c => c.name).join(', ') || 'Conference'
+                : scopedMode === 'zone'
+                  ? zones.filter(z => scopedZoneIds.has(z.id)).map(z => z.name).join(', ') || 'Zone'
+                  : branches.filter(b => scopedBranchIds.has(b.id)).map(b => b.name).join(', ') || 'Branch',
+            userRoles: allUserRoles as any,
+            roles: roles as any,
+            profiles: profiles as any,
+            unions: unions as any,
+            conferences: conferences as any,
+            zones: zones as any,
+            branches: branches as any,
+            scopedConferenceIds: scopedConfIds,
+            scopedZoneIds: scopedZoneIds,
+            scopedBranchIds: scopedBranchIds,
+          })
+        : null;
+
+      setLeaderExport(leaderExportData);
       setTotals({
         members: scopedMembers.length,
         zones: scopedZoneIds.size,
@@ -192,83 +226,27 @@ export default function Reports() {
       setPrimaryStats(primary);
       setHierarchyRows(hRows);
 
-      // Build leader report (grouped members by sub-level)
+      // Build leader report (grouped members by the full hierarchy)
       if (scopedMode !== 'personal') {
-        const branchName = (id: string) => branches.find(b => b.id === id)?.name || '';
-        const memberRow = (m: any) => ({
-          name: m.full_name,
-          branch: branchName(m.branch_id),
-          phone: m.phone,
-          institution: m.institution,
-        });
-        const sortMembers = <T extends { name: string }>(arr: T[]) =>
-          [...arr].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+        const scopeName = scopedMode === 'union'
+          ? (unions[0]?.name || 'Union')
+          : scopedMode === 'conference'
+            ? conferences.filter(c => scopedConfIds.has(c.id)).map(c => c.name).join(', ') || 'Conference'
+            : scopedMode === 'zone'
+              ? zones.filter(z => scopedZoneIds.has(z.id)).map(z => z.name).join(', ') || 'Zone'
+              : branches.filter(b => scopedBranchIds.has(b.id)).map(b => b.name).join(', ') || 'Branch';
 
-        let groupLabel = 'Branch';
-        let groups: { name: string; members: ReturnType<typeof memberRow>[] }[] = [];
-        let scopeName = '';
-
-        if (scopedMode === 'union') {
-          groupLabel = 'Conference';
-          scopeName = unions[0]?.name || 'Union';
-          groups = conferences
-            .map(c => {
-              const cZones = zones.filter(z => z.conference_id === c.id);
-              const cBranchIds = new Set(branches.filter(b => cZones.some(z => z.id === b.zone_id)).map(b => b.id));
-              const gm = scopedMembers.filter(m => cBranchIds.has(m.branch_id)).map(memberRow);
-              return { name: c.name, members: gm };
-            })
-            .filter(g => g.members.length > 0);
-        } else if (scopedMode === 'conference') {
-          groupLabel = 'Zone';
-          const myConfs = conferences.filter(c => scopedConfIds.has(c.id));
-          scopeName = myConfs.map(c => c.name).join(', ') || 'Conference';
-          groups = zones
-            .filter(z => scopedConfIds.has(z.conference_id))
-            .map(z => {
-              const zBranchIds = new Set(branches.filter(b => b.zone_id === z.id).map(b => b.id));
-              const gm = scopedMembers.filter(m => zBranchIds.has(m.branch_id)).map(memberRow);
-              return { name: z.name, members: gm };
-            })
-            .filter(g => g.members.length > 0);
-        } else if (scopedMode === 'zone') {
-          groupLabel = 'Branch';
-          const myZones = zones.filter(z => scopedZoneIds.has(z.id));
-          scopeName = myZones.map(z => z.name).join(', ') || 'Zone';
-          groups = branches
-            .filter(b => scopedZoneIds.has(b.zone_id))
-            .map(b => ({
-              name: b.name,
-              members: scopedMembers.filter(m => m.branch_id === b.id).map(memberRow),
-            }))
-            .filter(g => g.members.length > 0);
-        } else if (scopedMode === 'branch') {
-          groupLabel = 'Branch';
-          const myBranches = branches.filter(b => scopedBranchIds.has(b.id));
-          scopeName = myBranches.map(b => b.name).join(', ') || 'Branch';
-          groups = myBranches.map(b => ({
-            name: b.name,
-            members: scopedMembers.filter(m => m.branch_id === b.id).map(memberRow),
-          }));
-        }
-
-        // Alphabetize members within each group and groups by name
-        const sortedGroups = groups
-          .map(g => ({ ...g, members: sortMembers(g.members) }))
-          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-
-        setLeaderReport({
+        setLeaderReport(buildLeaderReportData({
           scopeLevel: scopedMode,
           scopeName,
-          counts: {
-            conferences: scopedMode === 'union' ? scopedConfIds.size : undefined,
-            zones: scopedMode === 'union' || scopedMode === 'conference' ? scopedZoneIds.size : undefined,
-            branches: scopedBranchIds.size,
-            members: scopedMembers.length,
-          },
-          groupLabel,
-          groups: sortedGroups,
-        });
+          members,
+          branches,
+          zones,
+          conferences,
+          scopedBranchIds,
+          scopedZoneIds,
+          scopedConfIds,
+        }));
       } else {
         setLeaderReport(null);
       }
@@ -338,12 +316,21 @@ export default function Reports() {
               <ArrowLeft className="h-4 w-4" />
             </GlassButton>
             {mode !== 'personal' && (
-              <ExportMenu
-                rows={hierarchyRows}
-                filename={leaderReport ? `tucasa-${leaderReport.scopeLevel}-leader-report` : 'tucasa-hierarchy-report'}
-                title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
-                leaderReport={leaderReport}
-              />
+              <div className="flex items-center gap-2">
+                <ExportMenu
+                  rows={hierarchyRows}
+                  filename={leaderReport ? `tucasa-${leaderReport.scopeLevel}-leader-report` : 'tucasa-hierarchy-report'}
+                  title="TUCASA Hierarchy Report (Union → Conference → Zone → Branch)"
+                  leaderReport={leaderReport}
+                />
+                <ExportMenu
+                  rows={[]}
+                  filename={leaderExport ? `tucasa-${leaderExport.scopeLevel}-leaders-report` : 'tucasa-leaders-report'}
+                  title="TUCASA Leaders Report"
+                  triggerLabel="Export Leaders"
+                  leaderExport={leaderExport}
+                />
+              </div>
             )}
           </div>
         </div>
