@@ -276,7 +276,7 @@ export default function Auth() {
                         <SelectValue placeholder={zoneId ? 'Select Branch' : 'Select Zone first'} />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl border-white/20 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl">
-                        {filteredBranches.map(b => <SelectItem key={b.id} value={b.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{b.name}</SelectItem>)}
+                        {[...filteredBranches].sort(byNameAsc).map(b => <SelectItem key={b.id} value={b.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{toTitleCase(b.name)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>
