@@ -245,7 +245,7 @@ export default function Hierarchy() {
                   <Select value={form.parent_id} onValueChange={v => setForm(f => ({ ...f, parent_id: v }))}>
                     <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder={`Select ${parentLabel()}`} /></SelectTrigger>
                     <SelectContent>
-                      {parentOptions().map(o => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+                      {[...parentOptions()].sort(byNameAsc).map(o => <SelectItem key={o.id} value={o.id}>{toTitleCase(o.name)}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
