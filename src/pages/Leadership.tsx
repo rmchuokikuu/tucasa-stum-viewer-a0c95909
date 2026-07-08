@@ -423,7 +423,7 @@ export default function Leadership() {
                     <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
                       <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select user" /></SelectTrigger>
                       <SelectContent>
-                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{p.full_name}</SelectItem>)}
+                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{toTitleCase(p.full_name || '')}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
