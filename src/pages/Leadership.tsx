@@ -265,35 +265,35 @@ export default function Leadership() {
 
   const profilesForScope = (level: string, levelId: string) => {
     if (!level || !levelId) return [] as typeof profiles;
+    let list: typeof profiles = [];
     if (level === 'union') {
       const confsInUnion = conferences.filter(c => c.union_id === levelId).map(c => c.id);
       const zonesInConfs = zones.filter(z => confsInUnion.includes(z.conference_id)).map(z => z.id);
       const branchesInZones = branches.filter(b => zonesInConfs.includes(b.zone_id)).map(b => b.id);
-      return profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
-    }
-    if (level === 'conference') {
+      list = profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
+    } else if (level === 'conference') {
       const zonesInConf = zones.filter(z => z.conference_id === levelId).map(z => z.id);
       const branchesInZones = branches.filter(b => zonesInConf.includes(b.zone_id)).map(b => b.id);
-      return profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
-    }
-    if (level === 'zone') {
+      list = profiles.filter(p => p.branch_id && branchesInZones.includes(p.branch_id));
+    } else if (level === 'zone') {
       const branchesInZone = branches.filter(b => b.zone_id === levelId).map(b => b.id);
-      return profiles.filter(p => p.branch_id && branchesInZone.includes(p.branch_id));
+      list = profiles.filter(p => p.branch_id && branchesInZone.includes(p.branch_id));
+    } else if (level === 'branch') {
+      list = profiles.filter(p => p.branch_id === levelId);
     }
-    if (level === 'branch') {
-      return profiles.filter(p => p.branch_id === levelId);
-    }
-    return [] as typeof profiles;
+    return [...list].sort(byNameAsc);
   };
 
   const levelOptions = () => {
+    let list: { id: string; name: string }[] = [];
     switch (form.hierarchy_level) {
-      case 'union': return unions;
-      case 'conference': return conferences.filter(c => manageableConfIds.has(c.id));
-      case 'zone': return zones.filter(z => manageableZoneIds.has(z.id));
-      case 'branch': return branches.filter(b => manageableBranchIds.has(b.id));
+      case 'union': list = unions; break;
+      case 'conference': list = conferences.filter(c => manageableConfIds.has(c.id)); break;
+      case 'zone': list = zones.filter(z => manageableZoneIds.has(z.id)); break;
+      case 'branch': list = branches.filter(b => manageableBranchIds.has(b.id)); break;
       default: return [];
     }
+    return [...list].sort(byNameAsc);
   };
 
   const resolveRoleId = async (roleName: string) => {
