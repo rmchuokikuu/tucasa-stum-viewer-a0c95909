@@ -77,6 +77,7 @@ interface BuildLeaderReportArgs {
   branches: RawBranch[];
   zones: RawZone[];
   conferences: RawConference[];
+  unions?: { id: string; name: string }[];
   scopedBranchIds: Set<string>;
   scopedZoneIds: Set<string>;
   scopedConfIds: Set<string>;

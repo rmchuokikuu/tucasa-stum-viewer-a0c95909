@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Users, Building2, MapPin, ArrowLeft, UserCircle } from 'lucide-react';
 import { ExportMenu } from '@/components/ExportMenu';
 import { buildLeaderReportData, type LeaderReportData } from '@/lib/leader-report';
@@ -75,7 +75,7 @@ export default function Reports() {
         supabase.from('zones').select('id, name, conference_id'),
         supabase.from('conferences').select('id, name, union_id'),
         supabase.from('unions').select('id, name'),
-        supabase.from('user_roles').select('id, user_id, role_id, hierarchy_level, level_id, is_active, end_date'),
+        supabase.from('user_roles').select('id, user_id, role_id, hierarchy_level, level_id'),
         supabase.from('roles').select('id, name'),
         supabase.from('profiles').select('user_id, full_name, email, phone, branch_id'),
       ]);
@@ -395,37 +395,6 @@ export default function Reports() {
             )}
           </GlassCard>
 
-          {/* Distribution Pie */}
-          <GlassCard>
-            <div className="mb-3">
-              <h2 className="text-base sm:text-lg font-display font-semibold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">Distribution</h2>
-              <p className="text-xs sm:text-sm text-white/70">Share of members across your scope</p>
-            </div>
-            {primaryStats.length > 0 ? (
-              <ChartContainer config={chartConfig} className="h-[280px] w-full">
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} contentStyle={tooltipContentStyle} />
-                  <Pie
-                    data={primaryStats}
-                    dataKey="members"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    stroke="rgba(255,255,255,0.35)"
-                    label={({ name, members }) => `${name}: ${members}`}
-                    labelLine={false}
-                  >
-                    {primaryStats.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            ) : (
-              <p className="text-white/70 text-sm py-8 text-center">No data</p>
-            )}
-          </GlassCard>
         </>
       )}
     </DashboardLayout>
