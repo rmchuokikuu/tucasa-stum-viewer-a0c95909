@@ -667,7 +667,7 @@ export default function Members() {
               <Select value={form.branch_id} onValueChange={v => setForm(f => ({ ...f, branch_id: v }))}>
                 <SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger>
                 <SelectContent>
-                  {branches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                  {[...branches].sort(byNameAsc).map(b => <SelectItem key={b.id} value={b.id}>{toTitleCase(b.name)}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
