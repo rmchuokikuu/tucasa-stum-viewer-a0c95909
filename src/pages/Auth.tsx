@@ -256,7 +256,7 @@ export default function Auth() {
                         <SelectValue placeholder="Select Conference" />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl border-white/20 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-xl">
-                        {conferences.map(c => <SelectItem key={c.id} value={c.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{c.name}</SelectItem>)}
+                        {[...conferences].sort(byNameAsc).map(c => <SelectItem key={c.id} value={c.id} className="focus:bg-church-blue/10 focus:text-church-blue-dark">{toTitleCase(c.name)}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </Field>
