@@ -25,6 +25,12 @@ export function toTitleCase(input?: string | null): string {
     });
 }
 
+/** Person name in ALL CAPS, whitespace-collapsed. Empty-safe. */
+export function toUpperName(input?: string | null): string {
+  if (!input) return '';
+  return String(input).replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
 /** Alphabetical comparator that is case-insensitive. */
 export function byNameAsc<T extends { name?: string | null; full_name?: string | null }>(a: T, b: T) {
   const an = (a.full_name ?? a.name ?? '').toLowerCase();
