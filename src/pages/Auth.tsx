@@ -87,6 +87,10 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (countNames(fullName) !== 3) {
+      toast({ title: 'Three names required', description: 'Please enter your full name as three names (e.g. First Middle Last).', variant: 'destructive' });
+      return;
+    }
     if (!validatePhone(phone)) {
       toast({ title: 'Invalid phone number', description: 'Please enter a valid phone number.', variant: 'destructive' });
       return;
