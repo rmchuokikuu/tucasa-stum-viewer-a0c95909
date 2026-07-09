@@ -93,13 +93,53 @@ export default function Auth() {
     }
     setLoading(true);
     try {
+      const { data, error } = await supabase.functions.invoke('send-otp', { body: { phone } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setOtpPhone(phone);
+      setOtp('');
+      setOpenForm('otp');
+      toast({ title: 'OTP sent', description: 'Check your phone for the verification code.' });
+    } catch (err: any) {
+      toast({ title: 'Failed to send OTP', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.trim().length < 4) {
+      toast({ title: 'Enter the code', description: 'Please enter the OTP sent to your phone.', variant: 'destructive' });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-otp', { body: { phone: otpPhone, otp } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
       await signUp(phone, password, fullName, branchId, institution);
       await signIn(phone, password);
       navigate('/welcome', { replace: true, state: { fromSignup: true } as any });
     } catch (err: any) {
-      toast({ title: 'Sign-up failed', description: err.message, variant: 'destructive' });
+      toast({ title: 'Verification failed', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-otp', { body: { phone: otpPhone } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({ title: 'OTP resent', description: 'A new code has been sent to your phone.' });
+    } catch (err: any) {
+      toast({ title: 'Resend failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setResending(false);
     }
   };
 
