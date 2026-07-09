@@ -438,7 +438,7 @@ export default function Auth() {
           TUCASA STUM
         </h1>
         <p className="text-sm text-white/80 mb-10 text-center max-w-xs italic">
-          Informations Management System
+          Information Management System
         </p>
 
         {/* Action buttons */}

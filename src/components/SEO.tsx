@@ -9,7 +9,7 @@ interface SEOProps {
 }
 
 const DEFAULT_TITLE = 'TUCASA STUM';
-const DEFAULT_DESCRIPTION = 'TUCASA STUM is an Informations Management System for Adventist student associations in Tanzania universities and colleges.';
+const DEFAULT_DESCRIPTION = 'TUCASA STUM is an Information Management System for Adventist student associations in Tanzania universities and colleges.';
 const DEFAULT_URL = 'https://yourdomain.com';
 const DEFAULT_IMAGE = '/PCM-logo.png';
 const DEFAULT_KEYWORDS = 'TUCASA, STUM, membership, dashboard, student association, Tanzania';
