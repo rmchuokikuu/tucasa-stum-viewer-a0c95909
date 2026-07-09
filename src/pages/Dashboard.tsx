@@ -156,13 +156,12 @@ export default function Dashboard() {
     : 'Member';
 
   const formatHeroName = (fullName?: string) => {
-    const fallback = 'Member';
+    const fallback = 'MEMBER';
     if (!fullName) return fallback;
-    const words = fullName.trim().split(/\s+/).filter(Boolean);
+    const words = fullName.trim().split(/\s+/).filter(Boolean).map(w => w.toUpperCase());
     if (words.length === 0) return fallback;
 
     const firstTwo = words.slice(0, 2).join(' ');
-    // If two names together are too long, fall back to single first name
     const MAX_LEN = 24;
     if (firstTwo.length > MAX_LEN) return words[0];
 
