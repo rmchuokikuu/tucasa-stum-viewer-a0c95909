@@ -11,6 +11,7 @@ import {
   SidebarFooter, SidebarHeader, useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { toUpperName } from "@/lib/utils";
 
 export function AppSidebar() {
   const { state, setOpenMobile } = useSidebar();
