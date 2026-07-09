@@ -336,6 +336,51 @@ export default function Auth() {
                 </form>
               </div>
             )}
+
+            {openForm === 'otp' && (
+              <div className={formCardBase}>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="absolute top-4 right-4 p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <h2 className="text-white font-semibold mb-2 text-center text-lg tracking-[0.02em] drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                  Verify your phone
+                </h2>
+                <p className="text-white/80 text-sm text-center mb-4">
+                  Enter the 6-digit code sent to <span className="font-semibold text-white">{otpPhone}</span>
+                </p>
+                <form onSubmit={handleVerifyOtp} className="space-y-3">
+                  <Field label="OTP Code">
+                    <Input
+                      id="otp-code"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="123456"
+                      className="auth-input-readable tracking-[0.5em] text-center text-lg"
+                      value={otp}
+                      onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+                      required
+                    />
+                  </Field>
+                  <Button type="submit" className="auth-submit w-full mt-1" disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify & Continue'}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resending}
+                    className="auth-link w-full text-center text-sm py-1 disabled:opacity-60"
+                  >
+                    {resending ? 'Resending...' : 'Resend code'}
+                  </button>
+                </form>
+              </div>
+            )}
+
             </div>
           </div>
         </>
