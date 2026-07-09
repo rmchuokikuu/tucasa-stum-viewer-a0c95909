@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { StartupScreen } from '@/components/StartupScreen';
+import { toUpperName } from '@/lib/utils';
 import { GlassPanel, GlassOverlay, GlassButton } from '@/components/glass';
 import {
   Users, ShieldCheck, FileText, Network, UserCircle,
@@ -156,13 +157,12 @@ export default function Dashboard() {
     : 'Member';
 
   const formatHeroName = (fullName?: string) => {
-    const fallback = 'Member';
+    const fallback = 'MEMBER';
     if (!fullName) return fallback;
-    const words = fullName.trim().split(/\s+/).filter(Boolean);
+    const words = fullName.trim().split(/\s+/).filter(Boolean).map(w => w.toUpperCase());
     if (words.length === 0) return fallback;
 
     const firstTwo = words.slice(0, 2).join(' ');
-    // If two names together are too long, fall back to single first name
     const MAX_LEN = 24;
     if (firstTwo.length > MAX_LEN) return words[0];
 
@@ -315,7 +315,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            <div><span className="text-white/70">Name:</span> <span className="font-medium text-white">{myMembership.full_name}</span></div>
+            <div><span className="text-white/70">Name:</span> <span className="font-medium text-white">{toUpperName(myMembership.full_name)}</span></div>
             <div><span className="text-white/70">Status:</span> <span className="font-medium text-white">{myMembership.is_active ? 'Active' : 'Inactive'}</span></div>
             {myMembership.phone && <div><span className="text-white/70">Phone:</span> <span className="text-white">{myMembership.phone}</span></div>}
             {myMembership.institution && <div><span className="text-white/70">Institution:</span> <span className="text-white">{myMembership.institution}</span></div>}

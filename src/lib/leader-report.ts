@@ -93,7 +93,7 @@ function sortMembers(members: RawMember[]) {
 
 function createMemberRows(members: RawMember[], branchName: string): LeaderReportMemberRow[] {
   return members.map(member => ({
-    name: member.full_name,
+    name: (member.full_name || '').replace(/\s+/g, ' ').trim().toUpperCase(),
     branch: branchName,
     phone: member.phone,
     institution: member.institution,

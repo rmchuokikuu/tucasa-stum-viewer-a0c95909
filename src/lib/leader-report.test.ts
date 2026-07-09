@@ -41,10 +41,10 @@ describe('buildLeaderReportData', () => {
     const firstZone = conference.children[0];
     expect(firstZone.memberCount).toBe(1);
     expect(firstZone.children[0].name).toBe('Branch A');
-    expect(firstZone.children[0].members.map(member => member.name)).toEqual(['Alice']);
+    expect(firstZone.children[0].members.map(member => member.name)).toEqual(['ALICE']);
 
     const secondZone = conference.children[1];
     expect(secondZone.memberCount).toBe(2);
-    expect(secondZone.children[0].members.map(member => member.name)).toEqual(['Bob', 'Zoe']);
+    expect(secondZone.children[0].members.map(member => member.name)).toEqual(['BOB', 'ZOE']);
   });
 });

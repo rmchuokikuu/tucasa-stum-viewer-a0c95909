@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { toTitleCase, byNameAsc } from '@/lib/utils';
 
-import { LogIn, UserPlus, X } from 'lucide-react';
+import { LogIn, UserPlus, X, Eye, EyeOff } from 'lucide-react';
+
+const countNames = (v: string) => v.trim().split(/\s+/).filter(Boolean).length;
 
 type Row = { id: string; name: string };
 
@@ -38,6 +40,8 @@ export default function Auth() {
   const [otp, setOtp] = useState('');
   const [otpPhone, setOtpPhone] = useState('');
   const [resending, setResending] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -83,6 +87,10 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (countNames(fullName) !== 3) {
+      toast({ title: 'Three names required', description: 'Please enter your full name as three names (e.g. First Middle Last).', variant: 'destructive' });
+      return;
+    }
     if (!validatePhone(phone)) {
       toast({ title: 'Invalid phone number', description: 'Please enter a valid phone number.', variant: 'destructive' });
       return;
@@ -119,7 +127,7 @@ export default function Auth() {
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
 
-      await signUp(phone, password, fullName, branchId, institution);
+      await signUp(phone, password, fullName.replace(/\s+/g, ' ').trim().toUpperCase(), branchId, institution);
       await signIn(phone, password);
       navigate('/welcome', { replace: true, state: { fromSignup: true } as any });
     } catch (err: any) {
@@ -212,14 +220,24 @@ export default function Auth() {
                     />
                   </Field>
                   <Field label="Password">
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      className="auth-input-readable"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signin-password"
+                        type={showSignInPassword ? 'text' : 'password'}
+                        className="auth-input-readable pr-11"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignInPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800"
+                        aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </Field>
                   <Button type="submit" className="auth-submit w-full mt-1" disabled={loading}>
                     {loading ? 'Signing in...' : 'Sign In'}
@@ -249,14 +267,19 @@ export default function Auth() {
                   Create a new account
                 </h2>
                 <form onSubmit={handleSignUp} className="space-y-3">
-                  <Field label="Full Name">
+                  <Field label="Full Name (three names)">
                     <Input
                       id="signup-name"
-                      className="auth-input-readable"
+                      className="auth-input-readable uppercase placeholder:normal-case"
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
+                      placeholder="First Middle Last"
                       required
+                      aria-invalid={fullName.length > 0 && countNames(fullName) !== 3}
                     />
+                    {fullName.length > 0 && countNames(fullName) !== 3 && (
+                      <p className="text-xs text-red-200 mt-1">Three names required</p>
+                    )}
                   </Field>
                   <Field label="Phone Number">
                     <Input
@@ -271,15 +294,25 @@ export default function Auth() {
                     />
                   </Field>
                   <Field label="Password (min 6 chars)">
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      className="auth-input-readable"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showSignUpPassword ? 'text' : 'password'}
+                        className="auth-input-readable pr-11"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignUpPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800"
+                        aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </Field>
                   <Field label="Institution / College (optional)">
                     <Input

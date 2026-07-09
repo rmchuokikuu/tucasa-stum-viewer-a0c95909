@@ -15,7 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
-import { toTitleCase, byNameAsc } from '@/lib/utils';
+import { toTitleCase, toUpperName, byNameAsc } from '@/lib/utils';
 
 interface LeaderRow {
   id: string;
@@ -64,7 +64,7 @@ function LeaderCard({ leader, canManage, onRemove }: {
     <GlassCard variant="interactive" className="mb-3 !p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-sm truncate text-white">{toTitleCase(leader.user_name)}</h3>
+          <h3 className="font-medium text-sm truncate text-white">{toUpperName(leader.user_name)}</h3>
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
             <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
               <Shield className="h-2.5 w-2.5" />{leader.role_name}
@@ -423,7 +423,7 @@ export default function Leadership() {
                     <Select value={form.user_id} onValueChange={v => setForm(f => ({ ...f, user_id: v }))}>
                       <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue placeholder="Select user" /></SelectTrigger>
                       <SelectContent>
-                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{toTitleCase(p.full_name || '')}</SelectItem>)}
+                        {profilesForScope(form.hierarchy_level, form.level_id).map(p => <SelectItem key={p.user_id} value={p.user_id}>{toUpperName(p.full_name || '')}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -493,7 +493,7 @@ export default function Leadership() {
                             <GlassCard key={l.id} variant="interactive" className="!p-3">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
-                                  <h4 className="font-medium text-sm truncate text-white">{toTitleCase(l.user_name)}</h4>
+                                  <h4 className="font-medium text-sm truncate text-white">{toUpperName(l.user_name)}</h4>
                                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
                                     <Badge variant="outline" className="gap-1 text-[10px] bg-white/10 border-white/30 text-white">
                                       <Shield className="h-2.5 w-2.5" />{l.role_name}

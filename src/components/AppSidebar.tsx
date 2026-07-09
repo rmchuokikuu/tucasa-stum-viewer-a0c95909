@@ -11,6 +11,7 @@ import {
   SidebarFooter, SidebarHeader, useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { toUpperName } from "@/lib/utils";
 
 export function AppSidebar() {
   const { state, setOpenMobile } = useSidebar();
@@ -106,7 +107,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         {!collapsed && profile && (
           <div className="mb-3 px-2">
-            <p className="text-xs font-medium text-sidebar-foreground truncate">{profile.full_name}</p>
+            <p className="text-xs font-medium text-sidebar-foreground truncate">{toUpperName(profile.full_name)}</p>
           </div>
         )}
         <Button
