@@ -12,7 +12,7 @@ import { computeScope } from '@/lib/scope';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
 import { GlassCard, GlassPanel, GlassButton } from '@/components/glass';
-import { toTitleCase } from '@/lib/utils';
+import { toTitleCase, toUpperName } from '@/lib/utils';
 
 // Glass-friendly chart palette — white/blue translucent
 const CHART_COLORS = [
@@ -339,7 +339,7 @@ export default function Reports() {
       {mode === 'personal' && personal && (
         <GlassCard className="mb-6">
           <div className="flex items-center gap-2 text-base sm:text-lg font-display text-white mb-1">
-            <UserCircle className="h-5 w-5 text-white/90" /> {toTitleCase(personal.full_name)}
+            <UserCircle className="h-5 w-5 text-white/90" /> {toUpperName(personal.full_name)}
           </div>
           {personal.institution && (
             <div className="text-xs sm:text-sm text-white/80 mb-4">{toTitleCase(personal.institution)}</div>

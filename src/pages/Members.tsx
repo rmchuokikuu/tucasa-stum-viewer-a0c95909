@@ -17,7 +17,7 @@ import { SEO } from '@/components/SEO';
 import { ExportMenu } from '@/components/ExportMenu';
 import { GlassCard, GlassButton, GlassPanel, GlassOverlay, GlassScrollContainer, GlassItemButton } from '@/components/glass';
 import type { Tables } from '@/integrations/supabase/types';
-import { toTitleCase, byNameAsc } from '@/lib/utils';
+import { toTitleCase, toUpperName, byNameAsc } from '@/lib/utils';
 
 type Member = Tables<'members'>;
 type Branch = Tables<'branches'>;
@@ -69,7 +69,7 @@ function MemberCard({ member, canEdit, canDelete, onEdit, onDelete }: {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-sm truncate text-white">{toTitleCase(member.full_name)}</h3>
+            <h3 className="font-semibold text-sm truncate text-white">{toUpperName(member.full_name)}</h3>
           </div>
           <div className="space-y-1 text-xs text-white/70">
             {member.phone && <div className="flex items-center gap-1.5"><Phone className="h-3 w-3 shrink-0" /><span>{member.phone}</span></div>}
@@ -444,7 +444,7 @@ export default function Members() {
             <div className="flex gap-2 flex-wrap justify-end">
               <ExportMenu
                 rows={visibleMembers.map(m => ({
-                  Name: toTitleCase(m.full_name), Phone: m.phone || '',
+                  Name: toUpperName(m.full_name), Phone: m.phone || '',
                   Institution: toTitleCase(m.institution || ''), Branch: toTitleCase(view.branch.name),
                   Joined: new Date(m.created_at).toLocaleDateString(),
                 }))}
@@ -616,7 +616,7 @@ export default function Members() {
                   <TableBody>
                     {visibleMembers.map(m => (
                       <TableRow key={m.id} className="border-white/10 hover:bg-white/5">
-                        <TableCell className="font-medium text-white">{toTitleCase(m.full_name)}</TableCell>
+                        <TableCell className="font-medium text-white">{toUpperName(m.full_name)}</TableCell>
                         <TableCell className="text-white/85">{m.phone || '—'}</TableCell>
                         <TableCell className="text-white/85">{m.institution ? toTitleCase(m.institution) : '—'}</TableCell>
                         {(canEdit || canDelete) && (
