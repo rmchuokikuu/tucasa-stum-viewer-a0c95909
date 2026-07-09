@@ -41,7 +41,7 @@ describe('buildLeaderExportData', () => {
     expect(leaderRows.summary.conferenceLeaders).toBe(1);
     expect(leaderRows.summary.zoneLeaders).toBe(1);
     expect(leaderRows.summary.branchLeaders).toBe(1);
-    expect(leaderRows.rows.map(row => row.full_name)).toEqual(['Bob', 'Alice', 'Carol']);
+    expect(leaderRows.rows.map(row => row.full_name)).toEqual(['BOB', 'ALICE', 'CAROL']);
     expect(leaderRows.rows[0].conference_name).toBe('Conference Alpha');
     expect(leaderRows.rows[1].scope_level).toBe('Zone');
     expect(leaderRows.rows[2].branch_name).toBe('Branch One');
