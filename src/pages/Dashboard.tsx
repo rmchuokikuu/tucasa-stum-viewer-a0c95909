@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { StartupScreen } from '@/components/StartupScreen';
+import { toUpperName } from '@/lib/utils';
 import { GlassPanel, GlassOverlay, GlassButton } from '@/components/glass';
 import {
   Users, ShieldCheck, FileText, Network, UserCircle,
