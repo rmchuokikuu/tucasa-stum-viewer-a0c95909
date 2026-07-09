@@ -34,7 +34,10 @@ export default function Auth() {
   const [zoneId, setZoneId] = useState('');
   const [branchId, setBranchId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [openForm, setOpenForm] = useState<'signin' | 'signup' | null>(null);
+  const [openForm, setOpenForm] = useState<'signin' | 'signup' | 'otp' | null>(null);
+  const [otp, setOtp] = useState('');
+  const [otpPhone, setOtpPhone] = useState('');
+  const [resending, setResending] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
