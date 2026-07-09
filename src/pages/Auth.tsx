@@ -267,14 +267,19 @@ export default function Auth() {
                   Create a new account
                 </h2>
                 <form onSubmit={handleSignUp} className="space-y-3">
-                  <Field label="Full Name">
+                  <Field label="Full Name (three names)">
                     <Input
                       id="signup-name"
-                      className="auth-input-readable"
+                      className="auth-input-readable uppercase placeholder:normal-case"
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
+                      placeholder="First Middle Last"
                       required
+                      aria-invalid={fullName.length > 0 && countNames(fullName) !== 3}
                     />
+                    {fullName.length > 0 && countNames(fullName) !== 3 && (
+                      <p className="text-xs text-red-200 mt-1">Three names required</p>
+                    )}
                   </Field>
                   <Field label="Phone Number">
                     <Input
@@ -289,15 +294,25 @@ export default function Auth() {
                     />
                   </Field>
                   <Field label="Password (min 6 chars)">
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      className="auth-input-readable"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showSignUpPassword ? 'text' : 'password'}
+                        className="auth-input-readable pr-11"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignUpPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800"
+                        aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </Field>
                   <Field label="Institution / College (optional)">
                     <Input
