@@ -40,7 +40,6 @@ export default function Auth() {
   const [otp, setOtp] = useState('');
   const [otpPhone, setOtpPhone] = useState('');
   const [resending, setResending] = useState(false);
-  const [resending, setResending] = useState(false);
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const { signIn, signUp } = useAuth();
