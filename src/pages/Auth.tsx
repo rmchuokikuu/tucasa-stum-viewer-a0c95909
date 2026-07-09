@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { SEO } from '@/components/SEO';
 import { toTitleCase, byNameAsc } from '@/lib/utils';
 
-import { LogIn, UserPlus, X } from 'lucide-react';
+import { LogIn, UserPlus, X, Eye, EyeOff } from 'lucide-react';
+
+const countNames = (v: string) => v.trim().split(/\s+/).filter(Boolean).length;
 
 type Row = { id: string; name: string };
 
