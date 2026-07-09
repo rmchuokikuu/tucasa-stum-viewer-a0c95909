@@ -172,7 +172,7 @@ export function buildLeaderExportData({
       }
 
       return {
-        full_name: profile?.full_name || 'Unknown',
+        full_name: (profile?.full_name || 'Unknown').replace(/\s+/g, ' ').trim().toUpperCase(),
         leadership_position: roleMap.get(role.role_id) || 'Unknown',
         scope_level: getLevelLabel(role.hierarchy_level),
         union_name: unionName,
