@@ -34,7 +34,10 @@ export default function Auth() {
   const [zoneId, setZoneId] = useState('');
   const [branchId, setBranchId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [openForm, setOpenForm] = useState<'signin' | 'signup' | null>(null);
+  const [openForm, setOpenForm] = useState<'signin' | 'signup' | 'otp' | null>(null);
+  const [otp, setOtp] = useState('');
+  const [otpPhone, setOtpPhone] = useState('');
+  const [resending, setResending] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -90,13 +93,53 @@ export default function Auth() {
     }
     setLoading(true);
     try {
+      const { data, error } = await supabase.functions.invoke('send-otp', { body: { phone } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setOtpPhone(phone);
+      setOtp('');
+      setOpenForm('otp');
+      toast({ title: 'OTP sent', description: 'Check your phone for the verification code.' });
+    } catch (err: any) {
+      toast({ title: 'Failed to send OTP', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.trim().length < 4) {
+      toast({ title: 'Enter the code', description: 'Please enter the OTP sent to your phone.', variant: 'destructive' });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-otp', { body: { phone: otpPhone, otp } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
       await signUp(phone, password, fullName, branchId, institution);
       await signIn(phone, password);
       navigate('/welcome', { replace: true, state: { fromSignup: true } as any });
     } catch (err: any) {
-      toast({ title: 'Sign-up failed', description: err.message, variant: 'destructive' });
+      toast({ title: 'Verification failed', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-otp', { body: { phone: otpPhone } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({ title: 'OTP resent', description: 'A new code has been sent to your phone.' });
+    } catch (err: any) {
+      toast({ title: 'Resend failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setResending(false);
     }
   };
 
@@ -293,6 +336,51 @@ export default function Auth() {
                 </form>
               </div>
             )}
+
+            {openForm === 'otp' && (
+              <div className={formCardBase}>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="absolute top-4 right-4 p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <h2 className="text-white font-semibold mb-2 text-center text-lg tracking-[0.02em] drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                  Verify your phone
+                </h2>
+                <p className="text-white/80 text-sm text-center mb-4">
+                  Enter the 6-digit code sent to <span className="font-semibold text-white">{otpPhone}</span>
+                </p>
+                <form onSubmit={handleVerifyOtp} className="space-y-3">
+                  <Field label="OTP Code">
+                    <Input
+                      id="otp-code"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="123456"
+                      className="auth-input-readable tracking-[0.5em] text-center text-lg"
+                      value={otp}
+                      onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+                      required
+                    />
+                  </Field>
+                  <Button type="submit" className="auth-submit w-full mt-1" disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify & Continue'}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resending}
+                    className="auth-link w-full text-center text-sm py-1 disabled:opacity-60"
+                  >
+                    {resending ? 'Resending...' : 'Resend code'}
+                  </button>
+                </form>
+              </div>
+            )}
+
             </div>
           </div>
         </>
