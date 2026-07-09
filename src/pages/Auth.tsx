@@ -220,14 +220,24 @@ export default function Auth() {
                     />
                   </Field>
                   <Field label="Password">
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      className="auth-input-readable"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signin-password"
+                        type={showSignInPassword ? 'text' : 'password'}
+                        className="auth-input-readable pr-11"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSignInPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800"
+                        aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </Field>
                   <Button type="submit" className="auth-submit w-full mt-1" disabled={loading}>
                     {loading ? 'Signing in...' : 'Sign In'}
