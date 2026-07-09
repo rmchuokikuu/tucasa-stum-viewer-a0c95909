@@ -127,7 +127,7 @@ export default function Auth() {
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
 
-      await signUp(phone, password, fullName, branchId, institution);
+      await signUp(phone, password, fullName.replace(/\s+/g, ' ').trim().toUpperCase(), branchId, institution);
       await signIn(phone, password);
       navigate('/welcome', { replace: true, state: { fromSignup: true } as any });
     } catch (err: any) {
